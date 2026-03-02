@@ -1,0 +1,27 @@
+using Microsoft.EntityFrameworkCore;
+
+namespace {{ this.namespace }};
+
+public class {{ this.db_context.class_name }} : DbContext
+{
+    public {{ this.db_context.class_name }}(DbContextOptions<{{ this.db_context.class_name }}> options)
+        : base(options)
+    {
+    }
+
+    {{~ for set in this.db_context.db_sets ~}}
+    public DbSet<{{ set.entity_name }}> {{ set.class_name }} { get; set; }
+    {{~ end ~}}
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        {{~ for rel in this.db_context.relationships ~}}
+        modelBuilder.Entity<{{ rel.dependent_entity }}>()
+            .HasOne(d => d.{{ rel.navigation_property }})
+            .WithMany(p => p.{{ rel.collection_property }})
+            .HasForeignKey(d => d.{{ rel.foreign_key_name }});
+        {{~ end ~}}
+    }
+}

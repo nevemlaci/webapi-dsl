@@ -1,0 +1,33 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace {{ this.namespace }};
+
+public class {{ this.entity.class_name }}
+{
+    {{~ for field in this.entity.fields ~}}
+    {{~ if field.is_primary_key ~}}
+    [Key]
+    public {{ field.type }} {{ field.name }} { get; set; }
+    {{~ else if field.is_relation ~}}
+        {{~ if field.is_list ~}}
+    
+    // One-to-Many relation: {{ field.name }}
+    public virtual ICollection<{{ field.type }}> {{ field.name }} { get; set; } = new List<{{ field.type }}>();
+        {{~ else ~}}
+
+    // Foreign Key for {{ field.name }}
+    public Guid {{ field.foreign_key_name }} { get; set; }
+
+    // Navigation property
+    [ForeignKey("{{ field.foreign_key_name }}")]
+    public virtual {{ field.type }} {{ field.name }} { get; set; }
+        {{~ end ~}}
+    {{~ else ~}}
+
+    public {{ field.type }} {{ field.name }} { get; set; }
+    {{~ end ~}}
+    {{~ end ~}}
+}

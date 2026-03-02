@@ -1,0 +1,16 @@
+﻿//ez egy hash-map szerűség, ide lehet bármit tenni és az adott generátor fel tudja használni
+config {
+    baseNamespace: "ExampleAPI" 
+    prefix: "/api/v1"
+}
+
+entity User {
+    username : string
+    posts : List<Post>
+}
+
+entity Post {
+    title : string
+    content : string
+    author : User
+}

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_Main", "WebAPI_DSL_Main\WebAPI_DSL_Main.csproj", "{7C32ABDC-FDF8-4879-BAF7-49EF6A07CA39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_Lib", "WebAPI_DSL_Lib\WebAPI_DSL_Lib.csproj", "{7D8050B6-9FE7-4A03-B5C7-1CA082F21BE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneratorsCommon", "GeneratorsCommon\GeneratorsCommon.csproj", "{B3E10B49-AF21-4CF9-8933-444B76036461}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetGenerator", "AspNetGenerator\AspNetGenerator.csproj", "{0C0106DC-18C0-424F-B482-DBE871C48DE7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C32ABDC-FDF8-4879-BAF7-49EF6A07CA39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C32ABDC-FDF8-4879-BAF7-49EF6A07CA39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C32ABDC-FDF8-4879-BAF7-49EF6A07CA39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C32ABDC-FDF8-4879-BAF7-49EF6A07CA39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D8050B6-9FE7-4A03-B5C7-1CA082F21BE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D8050B6-9FE7-4A03-B5C7-1CA082F21BE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D8050B6-9FE7-4A03-B5C7-1CA082F21BE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D8050B6-9FE7-4A03-B5C7-1CA082F21BE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3E10B49-AF21-4CF9-8933-444B76036461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3E10B49-AF21-4CF9-8933-444B76036461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3E10B49-AF21-4CF9-8933-444B76036461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3E10B49-AF21-4CF9-8933-444B76036461}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C0106DC-18C0-424F-B482-DBE871C48DE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C0106DC-18C0-424F-B482-DBE871C48DE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C0106DC-18C0-424F-B482-DBE871C48DE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C0106DC-18C0-424F-B482-DBE871C48DE7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,70 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Mapster;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace {{ namespace }};
+
+[ApiController]
+[Route("{{ controller.route_prefix }}")]
+public class {{ controller.class_name }} : ControllerBase
+{
+    private readonly {{ controller.db_context_name }} _context;
+
+    public {{ controller.class_name }}({{ controller.db_context_name }} context)
+    {
+        _context = context;
+    }
+
+    {{~ for action in controller.actions ~}}
+    [Http{{ action.verb }}{{ if action.route_template != "" }}("{{ action.route_template }}"){{ end }}]
+    public async Task<{{ action.return_type }}> {{ action.method_name }}(
+        {{~ for param in action.parameters ~}}
+        {{ param.item1 }} {{ param.item2 }}{{ if !for.last }}, {{ end }}
+        {{~ end ~}})
+    {
+        {{~ if action.verb == "Get" ~}}
+            {{~ if action.route_template == "{id}" ~}}
+        var item = await _context.{{ controller.db_set_name }}.ProjectToType<{{ controller.dto_class_name }}>().FirstOrDefaultAsync();
+        if (item == null) return NotFound();
+        return Ok(item);
+            {{~ else ~}}
+        var dtos = await _context.{{ controller.db_set_name }}.ProjectToType<{{ controller.dto_class_name }}>().ToListAsync();
+        return Ok(dtos);
+            {{~ end ~}}
+
+        {{~ else if action.verb == "Post" ~}}
+        var entity = dto.Adapt<{{ controller.entity_class_name }}>();
+        _context.{{ controller.db_set_name }}.Add(entity);
+        await _context.SaveChangesAsync();
+        
+        var resultDto = entity.Adapt<{{ controller.dto_class_name }}>();
+        return CreatedAtAction("Get{{ controller.entity_class_name }}", new { id = entity.Id }, resultDto);
+
+        {{~ else if action.verb == "Put" ~}}
+        var existingEntity = await _context.{{ controller.db_set_name }}.FindAsync(id);
+        if (existingEntity == null) return NotFound();
+
+        dto.Adapt(existingEntity); 
+        existingEntity.Id = id;
+        
+        try {
+            await _context.SaveChangesAsync();
+        } catch (DbUpdateConcurrencyException) {
+            return Conflict();
+        }
+        return NoContent();
+
+        {{~ else if action.verb == "Delete" ~}}
+        var item = await _context.{{ controller.db_set_name }}.FindAsync(id);
+        if (item == null) return NotFound();
+        
+        _context.{{ controller.db_set_name }}.Remove(item);
+        await _context.SaveChangesAsync();
+        return NoContent();
+        {{~ end ~}}
+    }
+    {{~ end ~}}
+}

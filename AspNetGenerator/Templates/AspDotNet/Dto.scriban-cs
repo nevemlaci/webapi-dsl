@@ -1,0 +1,11 @@
+using System;
+using System.Collections.Generic;
+
+namespace {{ this.namespace }};
+
+public class {{ this.dto.class_name }}
+{
+    {{~ for field in this.dto.fields ~}}
+    public {{ field.type }} {{ field.name }} { get; set; }
+    {{~ end ~}}
+}
