@@ -1,4 +1,5 @@
-﻿using Scriban;
+﻿using System.Diagnostics;
+using Scriban;
 using Scriban.Runtime;
 using WebAPI_DSL_GeneratorsCommon;
 using WebAPI_DSL_Lib;
@@ -11,117 +12,148 @@ public class AspNetGenerator : ISourceGenerator
 {
     private DomainModel model;
     private AspNetModel aspNetModel;
+    private string templateDir;
+    private string baseOutputDir;
 
     public AspNetGenerator(DomainModel m)
     {
         model = m;
     }
     
-    public void Codegen()
+    public void Codegen(string outputDir)
     {
         aspNetModel = new AspNetModel(model);
-        GenerateDbContext();
-        GenerateControllers();
-        GenerateDtos();
-        GenerateEntities();
+        templateDir = Path.Join(AppContext.BaseDirectory, "Templates", "AspDotNet");
+        baseOutputDir = Path.Join(outputDir, "Generated");
+        GenerateDbContext(outputDir);
+        GenerateControllers(outputDir);
+        GenerateDtos(outputDir);
+        GenerateEntities(outputDir);
+        GenerateMappings();
     }
 
-    private void GenerateDbContext()
+    private void GenerateDbContext(string outputDir)
     {
-        var directoryPath = Path.Combine(AppContext.BaseDirectory, "Generated", "DbContext");
+        var directoryPath = Path.Join(baseOutputDir, "DbContext");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText("Templates/AspDotNet/DbContext.scriban-cs"));
+        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "DbContext.scriban-cs")));
         var templateContext = new TemplateContext
         {
-            TemplateLoader = new FileSystemLoader(Path.Combine(AppContext.BaseDirectory, "Templates"))
+            TemplateLoader = new FileSystemLoader(templateDir)
         };
         var scriptObject = new ScriptObject();
         scriptObject.Import(new
         {
-            Namespace = aspNetModel.DbContextNamespace,
+            Config = aspNetModel.Config,
             dbContext = aspNetModel.DbContext
         });
         templateContext.PushGlobal(scriptObject);
         var result = entityTemplate.Render(templateContext);
-        var filePath = Path.Combine(directoryPath, $"{aspNetModel.DbContext.ClassName}.cs");
+        var filePath = Path.Join(directoryPath, $"{aspNetModel.DbContext.ClassName}.cs");
         CsCodeChecker.AssertCodeCompiles(filePath, result);
         File.WriteAllText(filePath, result);
         
     }
     
-    private void GenerateDtos()
+    private void GenerateDtos(string outputDir)
     {
-        var directoryPath = Path.Combine(AppContext.BaseDirectory, "Generated", "Dtos");
+        var directoryPath = Path.Join(baseOutputDir, "Dtos");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText("Templates/AspDotNet/Dto.scriban-cs"));
+        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Dto.scriban-cs")));
         
         foreach (var dto in aspNetModel.Dtos)
         {
             var templateContext = new TemplateContext
             {
-                TemplateLoader = new FileSystemLoader(Path.Combine(AppContext.BaseDirectory, "Templates"))
+                TemplateLoader = new FileSystemLoader(templateDir)
             };
             var scriptObject = new ScriptObject();
             scriptObject.Import(new
             {
-                Namespace = aspNetModel.DtoNamespace,
+                Config = aspNetModel.Config,
                 Dto = dto
             });
             templateContext.PushGlobal(scriptObject);
             var result = entityTemplate.Render(templateContext);
-            var filePath = Path.Combine(directoryPath, $"{dto.ClassName}.cs");
+            var filePath = Path.Join(directoryPath, $"{dto.ClassName}.cs");
             CsCodeChecker.AssertCodeCompiles(filePath, result);
             File.WriteAllText(filePath, result);
         }
     }
     
-    private void GenerateEntities()
+    private void GenerateEntities(string outputDir)
     {
-        var directoryPath = Path.Combine(AppContext.BaseDirectory, "Generated", "Entities");
+        var directoryPath = Path.Join(baseOutputDir, "Entities");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText("Templates/AspDotNet/Entity.scriban-cs"));
+        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Entity.scriban-cs")));
         
         foreach (var entity in aspNetModel.Entities)
         {
             var templateContext = new TemplateContext
             {
-                TemplateLoader = new FileSystemLoader(Path.Combine(AppContext.BaseDirectory, "Templates"))
+                TemplateLoader = new FileSystemLoader(templateDir)
             };
             var scriptObject = new ScriptObject();
             scriptObject.Import(new
             {
-                Namespace = aspNetModel.EntityNamespace,
+                Config = aspNetModel.Config,
                 Entity = entity
             });
             templateContext.PushGlobal(scriptObject);
             var result = entityTemplate.Render(templateContext);
-            var filePath = Path.Combine(directoryPath, $"{entity.ClassName}.cs");
+            var filePath = Path.Join(directoryPath, $"{entity.ClassName}.cs");
+            CsCodeChecker.AssertCodeCompiles(filePath, result);
+            File.WriteAllText(filePath, result);
+        }
+    }
+    
+    private void GenerateMappings()
+    {
+        var directoryPath = Path.Join(baseOutputDir, "Mappings");
+        Directory.CreateDirectory(directoryPath);
+        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "MapsterConfig.scriban-cs")));
+        
+        foreach (var entity in aspNetModel.Entities)
+        {
+            var templateContext = new TemplateContext
+            {
+                TemplateLoader = new FileSystemLoader(templateDir)
+            };
+            var scriptObject = new ScriptObject();
+            scriptObject.Import(new
+            {
+                Config = aspNetModel.Config,
+                Entity = entity
+            });
+            templateContext.PushGlobal(scriptObject);
+            var result = entityTemplate.Render(templateContext);
+            var filePath = Path.Join(directoryPath, $"{entity.ClassName}Mapping.cs");
             CsCodeChecker.AssertCodeCompiles(filePath, result);
             File.WriteAllText(filePath, result);
         }
     }
 
-    private void GenerateControllers()
+    private void GenerateControllers(string outputDir)
     {
-        var directoryPath = Path.Combine(AppContext.BaseDirectory, "Generated", "Controllers");
+        var directoryPath = Path.Join(baseOutputDir, "Controllers");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText("Templates/AspDotNet/Controller.scriban-cs"));
+        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Controller.scriban-cs")));
         
         foreach (var controller in aspNetModel.Controllers)
         {
             var templateContext = new TemplateContext
             {
-                TemplateLoader = new FileSystemLoader(Path.Combine(AppContext.BaseDirectory, "Templates"))
+                TemplateLoader = new FileSystemLoader(templateDir)
             };
             var scriptObject = new ScriptObject();
             scriptObject.Import(new
             {
-                Namespace = aspNetModel.ControllerNamespace,
+                Config = aspNetModel.Config,
                 Controller = controller
             });
             templateContext.PushGlobal(scriptObject);
             var result = entityTemplate.Render(templateContext);
-            var filePath = Path.Combine(directoryPath, $"{controller.ClassName}.cs");
+            var filePath = Path.Join(directoryPath, $"{controller.ClassName}.cs");
             CsCodeChecker.AssertCodeCompiles(filePath, result);
             File.WriteAllText(filePath, result);
         }

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace {{ this.namespace }};
+namespace {{ this.config.dto_namespace }};
 
 public class {{ this.dto.class_name }}
 {
     {{~ for field in this.dto.fields ~}}
-    public {{ field.type }} {{ field.name }} { get; set; }
+    public {{ if field.is_list }}ICollection<{{ field.type }}>{{ else }}{{ field.type }}{{ end }}{{ if !field.is_required }}?{{ end }} {{ field.name }} { get; set; }
     {{~ end ~}}
 }

@@ -4,5 +4,5 @@ namespace WebAPI_DSL_Lib;
 
 public interface ISourceGenerator
 {
-    public void Codegen();
+    public void Codegen(string outputDir);
 }

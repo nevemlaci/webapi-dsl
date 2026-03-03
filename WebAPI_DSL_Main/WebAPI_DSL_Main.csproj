@@ -31,9 +31,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="test.restapi">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Templates\AspDotNet\Controller.scriban-cs">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -69,6 +66,10 @@
       </Content>
       <Content Include="..\AspNetGenerator\Templates\AspDotNet\Entity.scriban-cs">
         <Link>Templates\AspDotNet\Entity.scriban-cs</Link>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\AspNetGenerator\Templates\AspDotNet\MapsterConfig.scriban-cs">
+        <Link>Templates\AspDotNet\MapsterConfig.scriban-cs</Link>
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

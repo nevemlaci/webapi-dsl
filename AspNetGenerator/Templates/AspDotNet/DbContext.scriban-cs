@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using {{this.config.entity_namespace}};
 
-namespace {{ this.namespace }};
+namespace {{this.config.db_context_namespace}};
 
-public class {{ this.db_context.class_name }} : DbContext
+public class {{ this.db_context.class_name }} : Microsoft.EntityFrameworkCore.DbContext
 {
     public {{ this.db_context.class_name }}(DbContextOptions<{{ this.db_context.class_name }}> options)
         : base(options)

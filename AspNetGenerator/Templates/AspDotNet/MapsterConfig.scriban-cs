@@ -1,0 +1,29 @@
+using System.Linq;
+using Mapster;
+using {{ config.entity_namespace }};
+using {{ config.dto_namespace }};
+
+namespace {{ config.mapping_namespace }};
+
+public class {{ entity.class_name }}MappingConfig : IRegister
+{
+    public void Register(TypeAdapterConfig config)
+    {
+        config.NewConfig<{{ entity.class_name }}, {{ entity.class_name }}Dto>()
+            {{~ for field in entity.fields ~}}
+            {{~ if field.is_relation && field.is_list ~}}
+            .Map(dest => dest.{{ field.name }}Id, src => src.{{ field.name }}.Select(x => x.Id))
+            {{~ end ~}}
+            {{~ end ~}};
+
+        config.NewConfig<{{ entity.class_name }}Dto, {{ entity.class_name }}>()
+            {{~ for field in entity.fields ~}}
+            {{~ if field.is_primary_key ~}}
+            .Ignore(dest => dest.{{ field.name }}) 
+            {{~ end ~}}
+            {{~ if field.is_relation ~}}
+            .Ignore(dest => dest.{{ field.name }})
+            {{~ end ~}}
+            {{~ end ~}};
+    }
+}

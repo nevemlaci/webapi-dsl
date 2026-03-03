@@ -15,4 +15,7 @@ public class DtoFieldDefinition
 {
     public string Type { get; set; }
     public string Name { get; set; }
+    
+    public bool IsList { get; set; }
+    public bool IsRequired { get; set; } = false;
 }

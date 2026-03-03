@@ -11,6 +11,8 @@ internal static class Program
     static void Main(string[] args)
     {
         var filename = "test.restapi";
+        var outputDir = AppContext.BaseDirectory;
+        var generatorName = string.Empty;
         CommandLine.Parser.Default.ParseArguments<Args>(args)
             .WithParsed(options =>
                 {
@@ -18,10 +20,18 @@ internal static class Program
                     {
                         filename = options.InputFile;
                     }
+
+                    if (options.OutputDirectory != null)
+                    {
+                        outputDir = options.OutputDirectory;
+                    }
+
+                    generatorName = options.Generator;
+
                 }
 
             );
-
+        
         var src = File.ReadAllText(filename);
 
         var inputStream = new AntlrInputStream(src.ToCharArray(), src.Length);
@@ -40,10 +50,15 @@ internal static class Program
         var resolver = new Resolver(model);
         
         resolver.Resolve();
-
-        GeneratorSelector generatorSelector = new();
-        var generator = generatorSelector.GetGenerator("aspnet", model);
         
-        generator?.Codegen();
+        if (!Directory.Exists(outputDir))
+        {
+            Directory.CreateDirectory(outputDir);
+        }
+        
+        GeneratorSelector generatorSelector = new();
+        var generator = generatorSelector.GetGenerator(generatorName, model);
+        
+        generator?.Codegen(outputDir);
     }
 }

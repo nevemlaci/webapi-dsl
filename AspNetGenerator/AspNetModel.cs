@@ -6,14 +6,31 @@ namespace AspNetGenerator;
 
 public class AspNetModel
 {
+    public record ModelConfig(
+        string DbContextNamespace,
+        string EntityNamespace,
+        string ControllerNamespace,
+        string DtoNamespace,
+        string MappingNamespace
+        );
+
+    public ModelConfig Config => new ModelConfig(
+        DbContextNamespace: DbContextNamespace,
+        EntityNamespace: EntityNamespace,
+        ControllerNamespace: ControllerNamespace,
+        DtoNamespace: DtoNamespace,
+        MappingNamespace: MappingNamespace
+    );
+    
     private DbContextSource dbContextSource = new();
     private List<ControllerSource> controllers = [];
     private List<DtoSource> dtos = [];
     private List<EntitySource> entities = [];
-    public string ControllerNamespace { get; private set; }
-    public string DtoNamespace { get; private set; }
-    public string DbContextNamespace { get; private set; }
-    public string EntityNamespace { get; private set; }
+    private string ControllerNamespace { get;}
+    private string DtoNamespace { get;}
+    private string DbContextNamespace { get;}
+    private string EntityNamespace { get;}
+    private string MappingNamespace { get; }
 
     public IImmutableList<ControllerSource> Controllers => controllers.ToImmutableList();
     public IImmutableList<DtoSource> Dtos => dtos.ToImmutableList();
@@ -22,11 +39,13 @@ public class AspNetModel
 
     public AspNetModel(DomainModel model)
     {
-        ControllerNamespace = model.Config["baseNamespace"] + "Controllers";
-        DtoNamespace = model.Config["baseNamespace"] + "Dtos";
-        DbContextNamespace = model.Config["baseNamespace"] + "DbContext";
-        EntityNamespace = model.Config["baseNamespace"] + "Entities";
-
+        ControllerNamespace = model.Config["baseNamespace"] + ".Generated.Controllers";
+        DtoNamespace = model.Config["baseNamespace"] + ".Generated.Dtos";
+        DbContextNamespace = model.Config["baseNamespace"] + ".Generated.DbContext";
+        EntityNamespace = model.Config["baseNamespace"] + ".Generated.Entities";
+        MappingNamespace = model.Config["baseNamespace"] + ".Generated.Mappings";
+        
+        
         foreach (var modelEntity in model.Entities)
         {
             var entity = new EntitySource() { ClassName = NameHelper.ToPascal(modelEntity.Name)};
@@ -38,6 +57,13 @@ public class AspNetModel
                 Name = "Id",
                 Type = "Guid",
                 IsPrimaryKey = true
+            });
+            dto.Fields.Add(new DtoFieldDefinition()
+            {
+                Name = "Id",
+                IsList = false,
+                IsRequired = false,
+                Type = "Guid"
             });
             dbContextSource.DbSets.Add(
                 new() { EntityName = entity.ClassName, ClassName = entity.ClassName + 's' }
@@ -69,7 +95,9 @@ public class AspNetModel
         dto.Fields.Add(new DtoFieldDefinition
         {
             Type = "Guid",
-            Name = $"{pascalFieldName}Id"
+            Name = $"{pascalFieldName}Id",
+            IsList = modelField.IsList,
+            IsRequired = modelField.IsRequired
         });
 
         var entityField = new EntityFieldSource
@@ -115,7 +143,8 @@ public class AspNetModel
         dto.Fields.Add(new DtoFieldDefinition()
         {
             Type = fieldTypeName,
-            Name = pascalFieldName
+            Name = pascalFieldName,
+            IsRequired = modelField.IsRequired
         });
     }
 
