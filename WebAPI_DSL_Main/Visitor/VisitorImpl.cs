@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime;
+using WebAPI_DSL_Lib;
 using WebAPI_DSL_Lib.Info;
 using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Meta.Expressions;
@@ -70,6 +71,18 @@ public class VisitorImpl : RestDslBaseVisitor<object>
     {
         var entity = new EntityDefinition { Name = context.ID().GetText() };
 
+        foreach (var annotation in context._annotations)
+        {
+            if (annotation.name.Text == "@NoDefaultEndpoint")
+            {
+                entity.GenerateDefaultCrud = false;
+            }
+            else
+            {
+                Logger.Warn(GetLineInfo(annotation), $"Unknown annotation: {annotation.name.Text} ignored!");
+            }
+        }
+        
         foreach (var fieldCtx in context.field())
         {
             entity.Fields.Add(VisitField(fieldCtx));

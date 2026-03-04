@@ -7,6 +7,8 @@ public class EntityDefinition : MetaBase, IType
     public string Name { get; set; }
     public List<FieldDefinition> Fields { get; set; } = [];
 
+    public bool GenerateDefaultCrud = true;
+
     public override string ToString()
     {
         return Name;

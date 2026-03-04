@@ -4,6 +4,7 @@ config {
     prefix: "/api/v1"
 }
 
+
 entity User {
     username : string
     posts : List<Post>

@@ -38,7 +38,7 @@ enumDeclaration:
 // -- Entity --
 
 entity: 
-    'entity' ID '{' field* '}';
+    annotations+=annotation* 'entity' ID '{' field* '}';
 
 field: 
     annotations+=annotation* name=ID ':' typeoffield=typeName ('=' default=expression)?;

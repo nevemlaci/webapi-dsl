@@ -48,9 +48,11 @@ public class AspNetModel
         
         foreach (var modelEntity in model.Entities)
         {
+            if(!modelEntity.GenerateDefaultCrud) continue;
+            
             var entity = new EntitySource() { ClassName = NameHelper.ToPascal(modelEntity.Name)};
-            var controller = ControllerSource.CreateCrud(entity.ClassName, dbContextSource.ClassName);
             var dto = new DtoSource(entity.ClassName);
+            var controller = ControllerSource.CreateCrud(entity.ClassName, dbContextSource.ClassName);
 
             entity.Fields.Add(new EntityFieldSource
             {
