@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace TestingGenerated;
 
@@ -37,9 +38,12 @@ class Program
     
             await DbInitializer.SeedData(db);
         }
-        
-        app.UseSwagger();
-        app.UseSwaggerUI();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
         
         app.UseHttpsRedirection();
         app.UseAuthorization();
