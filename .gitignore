@@ -11,6 +11,8 @@
 .idea/**/dictionaries
 .idea/**/shelf
 
+./WebAPI_DSL_TestingProject/Generated/**
+
 # AWS User-specific
 .idea/**/aws.xml
 

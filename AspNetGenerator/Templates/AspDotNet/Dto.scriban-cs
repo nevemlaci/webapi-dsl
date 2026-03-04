@@ -9,3 +9,10 @@ public class {{ this.dto.class_name }}
     public {{ if field.is_list }}ICollection<{{ field.type }}>{{ else }}{{ field.type }}{{ end }}{{ if !field.is_required }}?{{ end }} {{ field.name }} { get; set; }
     {{~ end ~}}
 }
+
+public class Update{{this.dto.class_name}}
+{
+    {{~ for field in this.dto.fields ~}}
+        public {{ if field.is_list }}ICollection<{{ field.type }}>{{ else }}{{ field.type }}{{ end }}?  {{ field.name }} { get; set; }
+    {{~ end ~}}
+}

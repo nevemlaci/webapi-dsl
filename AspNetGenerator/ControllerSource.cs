@@ -58,7 +58,7 @@ public class ControllerSource
             ReturnType = "IActionResult"
         };
         update.Parameters.Add(("Guid", "id"));
-        update.Parameters.Add((source.DtoClassName, "dto"));
+        update.Parameters.Add(("Update" + source.DtoClassName, "dto"));
         source.Actions.Add(update);
         
         var delete = new ActionSource() {
