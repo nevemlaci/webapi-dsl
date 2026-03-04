@@ -18,6 +18,16 @@ public class {{ this.db_context.class_name }} : Microsoft.EntityFrameworkCore.Db
     {
         base.OnModelCreating(modelBuilder);
 
+        {{~ for set in this.db_context.db_sets ~}}
+        {{~ for field in set.entity.fields ~}}
+        {{~ if field.is_unique ~}}
+        modelBuilder.Entity<{{ set.entity_name }}>()
+            .HasIndex(e => e.{{ field.name }})
+            .IsUnique();
+        {{~ end ~}}
+        {{~ end ~}}
+        {{~ end ~}}
+
         {{~ for rel in this.db_context.relationships ~}}
         modelBuilder.Entity<{{ rel.dependent_entity }}>()
             .HasOne(d => d.{{ rel.navigation_property }})

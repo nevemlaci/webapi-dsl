@@ -28,8 +28,17 @@ public class UserController : ControllerBase
     {
         var entity = dto.Adapt<User>();
         _context.Users.Add(entity);
-        await _context.SaveChangesAsync();
-        
+        try{
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException e){
+            return StatusCode(500, new 
+            { 
+                error = "Server has encountered an error!", 
+                message = e.InnerException?.Message 
+            });
+        }
+
         var resultDto = entity.Adapt<UserDto>();
         return CreatedAtAction("GetUser", new { id = entity.Id }, resultDto);
 
@@ -69,10 +78,17 @@ public class UserController : ControllerBase
         try 
         {
             await _context.SaveChangesAsync();
-        } 
+        }
         catch (DbUpdateConcurrencyException) 
         {
             return Conflict();
+        }
+        catch (DbUpdateException e){
+            return StatusCode(500, new 
+            { 
+                error = "Server has encountered an error!", 
+                message = e.InnerException?.Message 
+            });
         }
         return NoContent();
 
@@ -86,7 +102,17 @@ public class UserController : ControllerBase
         if (item == null) return NotFound();
         
         _context.Users.Remove(item);
-        await _context.SaveChangesAsync();
+        try 
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException e){
+            return StatusCode(500, new 
+            { 
+                error = "Server has encountered an error!", 
+                message = e.InnerException?.Message 
+            });
+        }
         return NoContent();
     }
 }

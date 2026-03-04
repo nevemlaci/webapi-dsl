@@ -111,16 +111,17 @@ public class VisitorImpl : RestDslBaseVisitor<object>
             //TODO class for annotation behavior
             switch (txt)
             {
+                /*
                 case "@pk": 
                     field.IsPrimaryKey = true;
                     break;
                 case "@required":
                     field.IsRequired = true;
                     break;
+                */
                 case "@unique":
                     field.IsUnique = true;
                     break;
-                //TODO onetomany, manytoone, etc.
             }
         }
 

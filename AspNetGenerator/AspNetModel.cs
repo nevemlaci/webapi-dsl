@@ -68,7 +68,7 @@ public class AspNetModel
                 Type = "Guid"
             });
             dbContextSource.DbSets.Add(
-                new() { EntityName = entity.ClassName, ClassName = entity.ClassName + 's' }
+                new() { Entity = entity, EntityName = entity.ClassName, ClassName = entity.ClassName + 's' }
             );
 
             foreach (var modelField in modelEntity.Fields)
@@ -107,7 +107,8 @@ public class AspNetModel
             Name = pascalFieldName,
             Type = fieldTypeName,
             IsRelation = true,
-            IsList = modelField.IsList
+            IsList = modelField.IsList,
+            IsUnique = modelField.IsUnique
         };
 
         if (!modelField.IsList)
@@ -139,7 +140,8 @@ public class AspNetModel
             Name = pascalFieldName,
             Type = fieldTypeName,
             IsRelation = false,
-            IsPrimaryKey = false
+            IsPrimaryKey = false,
+            IsUnique = modelField.IsUnique
         });
 
         dto.Fields.Add(new DtoFieldDefinition()

@@ -17,6 +17,10 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<User>()
+            .HasIndex(e => e.Username)
+            .IsUnique();
+
         modelBuilder.Entity<Post>()
             .HasOne(d => d.Author)
             .WithMany(p => p.Posts)
