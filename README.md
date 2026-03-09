@@ -2,7 +2,7 @@
 
 As of now you can define entites for your API. A domain model is created and this model is used by language specific generators to generate code. 
 
-The ASP.NET generator almost works for entities and CRUD operations for said entities.
+The ASP.NET generator works for entities and CRUD operations for said entities.
 
 ## Syntax
 
