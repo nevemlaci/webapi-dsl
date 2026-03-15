@@ -17,6 +17,8 @@ public class FieldDefinition : MetaBase
     public bool IsUnique { get; set; } = false;
     public bool IsRelation => Type is EntityDefinition;
     public IExpression? DefaultValue { get; set; }
+
+    public List<(string name, Dictionary<string, object> args)> AnnotationsRaw { get;} = [];
     public override string ToString()
     {
         return $"{Name} : {RawTypeName}";

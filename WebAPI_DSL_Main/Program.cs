@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using CommandLine;
+using WebAPI_DSL_Lib.Meta.Annotations;
 using WebAPI_DSL_Lib.Model;
 using WebAPI_DSL_Main.Visitor;
 
@@ -47,7 +48,7 @@ internal static class Program
 
         var model = visitor.VisitProgram(context);
 
-        var resolver = new Resolver(model);
+        var resolver = new Resolver(model, BuiltinAnnotations.CreateDefaultAnnotationProcessor());
         
         resolver.Resolve();
         

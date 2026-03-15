@@ -73,14 +73,8 @@ public class VisitorImpl : RestDslBaseVisitor<object>
 
         foreach (var annotation in context._annotations)
         {
-            if (annotation.name.Text == "@NoDefaultEndpoint")
-            {
-                entity.GenerateDefaultCrud = false;
-            }
-            else
-            {
-                Logger.Warn(GetLineInfo(annotation), $"Unknown annotation: {annotation.name.Text} ignored!");
-            }
+            var txt = annotation.name.Text;
+            entity.AnnotationsRaw.Add(((string name, Dictionary<string, object> args))VisitAnnotation(annotation));
         }
         
         foreach (var fieldCtx in context.field())
@@ -106,23 +100,7 @@ public class VisitorImpl : RestDslBaseVisitor<object>
 
         foreach (var annotation in context._annotations)
         {
-            string txt = annotation.GetText();
-
-            //TODO class for annotation behavior
-            switch (txt)
-            {
-                /*
-                case "@pk": 
-                    field.IsPrimaryKey = true;
-                    break;
-                case "@required":
-                    field.IsRequired = true;
-                    break;
-                */
-                case "@unique":
-                    field.IsUnique = true;
-                    break;
-            }
+            field.AnnotationsRaw.Add(((string name, Dictionary<string, object> args))VisitAnnotation(annotation));
         }
 
         if (context.@default != null)
@@ -152,6 +130,40 @@ public class VisitorImpl : RestDslBaseVisitor<object>
         }
 
         return new TypeInfo(context.typeid.Text, false);
+    }
+
+    public override object VisitAnnotation(RestDslParser.AnnotationContext context)
+    {
+        var name = context.name.Text;
+        Dictionary<string, object> args = new();
+        if (context.parameterAssignmentTuple() == null) return (name, args);
+        for (int i = 0; i < context.parameterAssignmentTuple()._params.Count; ++i)
+        {
+            var param = context.parameterAssignmentTuple()._params[i];
+            var paramname = param.name?.Text ?? $"__arg{i+1}";
+            var paramvalue = VisitExpression(param.value);
+            if (!args.TryAdd(paramname, paramvalue))
+            {
+                Logger.Error(GetLineInfo(param), $"Duplicate parameter: {paramname}");
+            }
+        }
+
+        return (name, args);
+    }
+
+    public override string VisitStringLiteralExpr(RestDslParser.StringLiteralExprContext context)
+    {
+        return context.value.Text[1..^1];
+    }
+
+    public override object VisitIntegerLiteral(RestDslParser.IntegerLiteralContext context)
+    {
+        return int.Parse(context.value.Text);
+    }
+
+    public override object VisitFloatLiteral(RestDslParser.FloatLiteralContext context)
+    {
+        return double.Parse(context.value.Text);
     }
 }
 

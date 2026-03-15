@@ -4,14 +4,14 @@ config {
     prefix: "/api/v1"
 }
 
-@route(users)
+@Route("users")
 entity User {
     @unique
     username : string
     posts : List<Post>
 }
 
-@route(posts)
+@Route("posts")
 entity Post {
     title : string
     content : string

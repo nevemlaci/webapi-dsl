@@ -10,19 +10,19 @@ public class ControllerSource
     public string DbSetName { get; set; }
     public List<ActionSource> Actions { get; set; } = [];
     
-    public ControllerSource(string entityName, string dbContextName)
+    public ControllerSource(string entityName, string route, string dbContextName)
     {
         ClassName = $"{entityName}Controller";
         EntityClassName = entityName;
         DtoClassName = $"{entityName}Dto";
         DbContextName = dbContextName;
         DbSetName = $"{entityName}s";
-        RoutePrefix = "api/[controller]";
+        RoutePrefix = $"api/{route}";
     }
 
-    public static ControllerSource CreateCrud(string entityName, string dbContextName)
+    public static ControllerSource CreateCrud(string entityName, string route, string dbContextName)
     {
-        var source = new ControllerSource(entityName, dbContextName);
+        var source = new ControllerSource(entityName, route, dbContextName);
         
         var create = new ActionSource() {
             MethodName = $"Create{entityName}",

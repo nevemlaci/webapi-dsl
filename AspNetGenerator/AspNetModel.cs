@@ -49,10 +49,10 @@ public class AspNetModel
         foreach (var modelEntity in model.Entities)
         {
             if(!modelEntity.GenerateDefaultCrud) continue;
-            
-            var entity = new EntitySource() { ClassName = NameHelper.ToPascal(modelEntity.Name)};
+            var route = modelEntity.Route ?? modelEntity.Name.ToLower();
+            var entity = new EntitySource { ClassName = NameHelper.ToPascal(modelEntity.Name)};
             var dto = new DtoSource(entity.ClassName);
-            var controller = ControllerSource.CreateCrud(entity.ClassName, dbContextSource.ClassName);
+            var controller = ControllerSource.CreateCrud(entity.ClassName, route, dbContextSource.ClassName);
 
             entity.Fields.Add(new EntityFieldSource
             {

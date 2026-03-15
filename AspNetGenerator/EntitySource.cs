@@ -3,7 +3,6 @@
 public class EntitySource
 {
     public string ClassName { get; set; }
-    
     public List<EntityFieldSource> Fields { get; set; } = [];
 }
 

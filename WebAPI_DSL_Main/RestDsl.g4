@@ -56,7 +56,7 @@ parameterAssignmentTuple:
     ;
 
 annotationParameterAssignment:
-    name = ID '=' atom
+    (name = ID '=')? value=expression
     ;
 
 // -- Expressions, atoms --

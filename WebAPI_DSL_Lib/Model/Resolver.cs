@@ -1,5 +1,6 @@
 ﻿using WebAPI_DSL_Lib.Info;
 using WebAPI_DSL_Lib.Meta;
+using WebAPI_DSL_Lib.Meta.Annotations;
 using WebAPI_DSL_Lib.Meta.Types;
 
 namespace WebAPI_DSL_Lib.Model;
@@ -19,7 +20,7 @@ public class ResolverError : Exception
     }
 }
 
-public class Resolver(DomainModel m)
+public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
 {
     public void Resolve()
     {
@@ -63,6 +64,11 @@ public class Resolver(DomainModel m)
         {
             Error(entity.LineInfo, $"Entity name {entity.Name} is not unique!");
         }
+
+        foreach (var (annotationName, args) in entity.AnnotationsRaw)
+        {
+            annotationProcessor.ApplyAnnotation(annotationName, entity, args);
+        }
         
         foreach (var field in entity.Fields)
         {
@@ -94,6 +100,11 @@ public class Resolver(DomainModel m)
         {
             field.Type = type;
             return;
+        }
+        
+        foreach (var (annotationName, args) in field.AnnotationsRaw)
+        {
+            annotationProcessor.ApplyAnnotation(annotationName, field, args);
         }
         
         Error(field.LineInfo, $"Unknown type: {rawTypeName}");
