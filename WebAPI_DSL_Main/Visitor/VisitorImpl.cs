@@ -136,15 +136,27 @@ public class VisitorImpl : RestDslBaseVisitor<object>
     {
         var name = context.name.Text;
         Dictionary<string, object> args = new();
+        bool namedArgPresent = false;
         if (context.parameterAssignmentTuple() == null) return (name, args);
         for (int i = 0; i < context.parameterAssignmentTuple()._params.Count; ++i)
         {
             var param = context.parameterAssignmentTuple()._params[i];
-            var paramname = param.name?.Text ?? $"__arg{i+1}";
+            var explicitParamName = param.name?.Text;
+            if (explicitParamName != null)
+            {
+                namedArgPresent = true;
+            }else if (namedArgPresent)
+            {
+                Logger.Error(GetLineInfo(param), $"Unnamed parameter not allowed after named " +
+                                                 $"parameter was already present!");
+                //TODO throw
+            }
+            var paramname = explicitParamName ?? $"__arg{i+1}";
             var paramvalue = VisitExpression(param.value);
             if (!args.TryAdd(paramname, paramvalue))
             {
                 Logger.Error(GetLineInfo(param), $"Duplicate parameter: {paramname}");
+                //TODO throw
             }
         }
 

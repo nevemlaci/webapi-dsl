@@ -85,28 +85,32 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         if (type != null)
         {
             field.Type = type;
-            return;
         }
-
-        type = m.Enums.Find(e => e.Name == rawTypeName);
-        if (type != null)
+        else
         {
-            field.Type = type;
-            return;
-        }
-
-        type = m.Entities.Find(e => e.Name == rawTypeName);
-        if (type != null)
-        {
-            field.Type = type;
-            return;
+            type = m.Enums.Find(e => e.Name == rawTypeName);
+            if (type != null)
+            {
+                field.Type = type;
+            }
+            else
+            {
+                type = m.Entities.Find(e => e.Name == rawTypeName);
+                if (type != null)
+                {
+                    field.Type = type;
+                }
+                else
+                {
+                    Error(field.LineInfo, $"Unknown type: {rawTypeName}");
+                    //TODO throw
+                }
+            }
         }
         
         foreach (var (annotationName, args) in field.AnnotationsRaw)
         {
             annotationProcessor.ApplyAnnotation(annotationName, field, args);
         }
-        
-        Error(field.LineInfo, $"Unknown type: {rawTypeName}");
     }
 }

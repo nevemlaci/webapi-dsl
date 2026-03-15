@@ -36,6 +36,25 @@ The language doesn't use semicolons to spearate fields.
 Entities can have `List<T>` members to either have a list of primitives,
 or a many-to-X relationship with another entity.
 
+### Annotations
+
+Annotations attach extra metadata to entities or fields. Annotations start with an `@` character
+followed by the name of the annotations and an optional parameter list. Parameters are separated by commas, allowing
+trailing commas and are always named. If a name isn't given to a parameter, it will have an implicit name determined
+by the index of the parameter
+
+```
+@Route("users") //implicit parameter name __arg1
+@Route(route="users") //explicit parameter name
+entity User{
+    @Unique
+    username : string
+    age : int
+}
+```
+
+Unnamed parameters are not allowed after named parameters.
+
 ## Example Project
 An example of using the generators in a project is shown in `WebAPI_DSL_TestingProject`.
 

@@ -6,14 +6,17 @@ config {
 
 @Route("users")
 entity User {
-    @unique
+    @Unique
+    @Required
     username : string
     posts : List<Post>
 }
 
 @Route("posts")
 entity Post {
+    @Required
     title : string
+    @Required
     content : string
     author : User
 }
