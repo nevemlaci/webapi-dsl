@@ -1,4 +1,5 @@
-﻿using WebAPI_DSL_Lib.Util;
+﻿using WebAPI_DSL_Lib.Meta.Expressions;
+using WebAPI_DSL_Lib.Util;
 
 namespace WebAPI_DSL_Lib.Meta.Annotations;
 
@@ -19,13 +20,13 @@ public class RouteAnnotation : EntityAnnotation
             throw new ArgumentNotFoundException("route");
         }
 
-        if (argValue is not string route)
+        if (argValue is not StringExpression route)
         {
             throw new IncorrectArgumentTypeException("string", 1);
         }
 
-        route = RouteSanitiazation.SanitizeRoute(route);
-        if (o is EntityDefinition e) e.Route = route;
+        var routes = RouteSanitiazation.SanitizeRoute(route.Value);
+        if (o is EntityDefinition e) e.Route = routes;
     }
     
     

@@ -17,11 +17,13 @@ public static class DbInitializer
 
         var user1 = new User { 
             Id = Guid.NewGuid(), 
-            Username = "AliceDev" 
+            Username = "AliceDev",
+            Accountage = 5
         };
         var user2 = new User { 
             Id = Guid.NewGuid(), 
-            Username = "BobCoder" 
+            Username = "BobCoder",
+            Accountage = 2
         };
 
         var posts = new List<Post>

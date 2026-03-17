@@ -163,19 +163,24 @@ public class VisitorImpl : RestDslBaseVisitor<object>
         return (name, args);
     }
 
-    public override string VisitStringLiteralExpr(RestDslParser.StringLiteralExprContext context)
+    public override StringExpression VisitStringLiteralExpr(RestDslParser.StringLiteralExprContext context)
     {
-        return context.value.Text[1..^1];
+        return new(){Value = context.value.Text[1..^1]};
     }
 
-    public override object VisitIntegerLiteral(RestDslParser.IntegerLiteralContext context)
+    public override IntExpression VisitIntegerLiteral(RestDslParser.IntegerLiteralContext context)
     {
-        return int.Parse(context.value.Text);
+        return new(){Value = int.Parse(context.value.Text)};
     }
 
-    public override object VisitFloatLiteral(RestDslParser.FloatLiteralContext context)
+    public override DoubleExpression VisitFloatLiteral(RestDslParser.FloatLiteralContext context)
     {
-        return double.Parse(context.value.Text);
+        return new(){Value = double.Parse(context.value.Text)};
+    }
+
+    public override EnumExpression VisitEnumValue(RestDslParser.EnumValueContext context)
+    {
+        return new (context.name.Text, context.value.Text);
     }
 }
 

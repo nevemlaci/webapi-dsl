@@ -8,7 +8,10 @@ config {
 entity User {
     @Unique
     @Required
+    @Filter(FilterType::Search)
     username : string
+    @Filter(FilterType::Range)
+    accountAge : int
     posts : List<Post>
 }
 

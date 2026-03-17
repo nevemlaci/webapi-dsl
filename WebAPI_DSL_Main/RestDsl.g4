@@ -35,6 +35,7 @@ listType:
 enumDeclaration:
     'enum' name=ID '{' values+=ID ( ',' values+=ID )* ','? '}';
 
+
 // -- Entity --
 
 entity: 
@@ -66,6 +67,7 @@ expression:
     
 atom:
     '(' expression ')' #ParenExpr
+    | name=ID '::' value=ID #EnumValue
     | value=STRING #StringLiteralExpr
     | value=INT #IntegerLiteral
     | value=FLOAT #FloatLiteral

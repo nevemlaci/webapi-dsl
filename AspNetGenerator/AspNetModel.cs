@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using WebAPI_DSL_Lib.Meta;
+using WebAPI_DSL_Lib.Meta.Enums;
 using WebAPI_DSL_Lib.Model;
 
 namespace AspNetGenerator;
@@ -82,7 +83,52 @@ public class AspNetModel
                     ProcessPrimitiveField(modelField, entity, dto);
                 }
             }
+            
+            var filterFields = modelEntity.Fields.Where(f => f.Filter != FilterType.EFilterType.None).ToList();
+            if (filterFields.Any())
+            {
+                var searchAction = new ActionSource
+                {
+                    MethodName = $"Search{entity.ClassName}s",
+                    Verb = HttpVerb.Get,
+                    RouteTemplate = "search",
+                    ReturnType = $"ActionResult<IEnumerable<{dto.ClassName}>>"
+                };
 
+                foreach (var f in filterFields)
+                {
+                    var fieldType = NameHelper.GetTypeOfField(f);
+                    var pascalName = NameHelper.ToPascal(f.Name);
+
+                    if (f.Filter == FilterType.EFilterType.Search)
+                    {
+                        var paramName = f.Name.ToLower();
+                        searchAction.Parameters.Add((fieldType + "?", paramName));
+                        searchAction.Filters.Add(new FilterInfo
+                        {
+                            Type = "Search",
+                            FieldName = pascalName,
+                            ParamName = paramName
+                        });
+                    }
+                    else if (f.Filter == FilterType.EFilterType.Range)
+                    {
+                        var minParam = "min" + pascalName;
+                        var maxParam = "max" + pascalName;
+                        searchAction.Parameters.Add((fieldType + "?", minParam));
+                        searchAction.Parameters.Add((fieldType + "?", maxParam));
+                        searchAction.Filters.Add(new FilterInfo
+                        {
+                            Type = "Range",
+                            FieldName = pascalName,
+                            MinParamName = minParam,
+                            MaxParamName = maxParam
+                        });
+                    }
+                }
+                controller.Actions.Add(searchAction);
+            }
+            
             controllers.Add(controller);
             entities.Add(entity);
             dtos.Add(dto);

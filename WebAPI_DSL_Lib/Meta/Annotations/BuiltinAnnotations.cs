@@ -6,6 +6,7 @@ public static class BuiltinAnnotations
     private static readonly IAnnotation RouteAnnotation = new RouteAnnotation();
     private static readonly IAnnotation UniqueAnnotation = new UniqueAnnotation();
     private static readonly IAnnotation RequiredAnnotation = new RequiredAnnotation();
+    private static readonly IAnnotation FilterAnnotation = new FilterAnnotation();
 
     public static AnnotationProcessor CreateDefaultAnnotationProcessor()
     {
@@ -15,7 +16,8 @@ public static class BuiltinAnnotations
                 NoDefaultEndpoint,
                 RouteAnnotation,
                 UniqueAnnotation,
-                RequiredAnnotation
+                RequiredAnnotation,
+                FilterAnnotation
             ]
         );
 

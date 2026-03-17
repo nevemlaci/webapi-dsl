@@ -1,4 +1,5 @@
-﻿using WebAPI_DSL_Lib.Meta.Expressions;
+﻿using WebAPI_DSL_Lib.Meta.Enums;
+using WebAPI_DSL_Lib.Meta.Expressions;
 using WebAPI_DSL_Lib.Meta.Types;
 
 namespace WebAPI_DSL_Lib.Meta;
@@ -19,6 +20,8 @@ public class FieldDefinition : MetaBase
     public IExpression? DefaultValue { get; set; }
 
     public List<(string name, Dictionary<string, object> args)> AnnotationsRaw { get;} = [];
+
+    public FilterType.EFilterType Filter { get; set; } = FilterType.EFilterType.None;
     public override string ToString()
     {
         return $"{Name} : {RawTypeName}";
