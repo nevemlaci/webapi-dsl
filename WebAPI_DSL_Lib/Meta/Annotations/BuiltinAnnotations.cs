@@ -1,4 +1,6 @@
-﻿namespace WebAPI_DSL_Lib.Meta.Annotations;
+﻿using WebAPI_DSL_Lib.Meta.Annotations.Builtin;
+
+namespace WebAPI_DSL_Lib.Meta.Annotations;
 
 public static class BuiltinAnnotations
 {

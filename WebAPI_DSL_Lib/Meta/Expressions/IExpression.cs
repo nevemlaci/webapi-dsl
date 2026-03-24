@@ -1,3 +1,8 @@
-﻿namespace WebAPI_DSL_Lib.Meta.Expressions;
+﻿using WebAPI_DSL_Lib.Meta.Types;
 
-public interface IExpression { }
+namespace WebAPI_DSL_Lib.Meta.Expressions;
+
+public interface IExpression
+{
+    public IType Type { get; }
+}

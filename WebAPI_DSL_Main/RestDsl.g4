@@ -1,6 +1,6 @@
 ﻿grammar RestDsl;
 
-program: configBlock (entity)*;
+program: configBlock (entity | enumDeclaration)*;
 
 // -- Config --
 

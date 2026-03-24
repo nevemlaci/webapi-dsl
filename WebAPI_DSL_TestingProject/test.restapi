@@ -4,6 +4,9 @@ config {
     prefix: "/api/v1"
 }
 
+enum UserRole{ User, Admin }
+
+
 @Route("users")
 entity User {
     @Unique

@@ -10,6 +10,6 @@ public class DomainModel
     public List<EntityDefinition> Entities { get; } = [];
     public List<EnumDefinition> Enums { get; } = [FilterType.Definition];
 
-    public List<PrimitiveTypeBase> PrimitiveTypes { get; } =
-        [new IntType(), new BoolType(), new DoubleType(), new StringType()];
+    public List<IType> Primitives { get; } =
+        [PrimitiveTypes.IntType, PrimitiveTypes.BoolType, PrimitiveTypes.DoubleType, PrimitiveTypes.StringType];
 }
