@@ -9,4 +9,5 @@ public class EnumExpression(string enumType, string enumValue) : MetaBase, IExpr
     public EnumDefinition? EnumType { get; set; }
     
     public string EnumValue { get; init; } = enumValue;
+    public IType Type => EnumType;
 }

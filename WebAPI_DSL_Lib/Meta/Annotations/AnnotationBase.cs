@@ -1,4 +1,6 @@
-﻿namespace WebAPI_DSL_Lib.Meta.Annotations;
+﻿using WebAPI_DSL_Lib.Meta.Annotations.ArgumentHolder;
+
+namespace WebAPI_DSL_Lib.Meta.Annotations;
 
 public abstract class AnnotationBase<T> : IAnnotation
 {
@@ -9,7 +11,7 @@ public abstract class AnnotationBase<T> : IAnnotation
         return o is T;
     }
 
-    public virtual void Apply(object o, Dictionary<string, object> args)
+    public virtual void Apply(object o, AnnotationArgumentHolder args)
     {
         if (!CanApplyTo(o))
         {

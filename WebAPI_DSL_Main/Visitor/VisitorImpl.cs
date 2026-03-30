@@ -2,6 +2,8 @@
 using WebAPI_DSL_Lib;
 using WebAPI_DSL_Lib.Info;
 using WebAPI_DSL_Lib.Meta;
+using WebAPI_DSL_Lib.Meta.Annotations;
+using WebAPI_DSL_Lib.Meta.Annotations.ArgumentHolder;
 using WebAPI_DSL_Lib.Meta.Expressions;
 using WebAPI_DSL_Lib.Meta.Types;
 using WebAPI_DSL_Lib.Model;
@@ -74,7 +76,7 @@ public class VisitorImpl : RestDslBaseVisitor<object>
         foreach (var annotation in context._annotations)
         {
             var txt = annotation.name.Text;
-            entity.AnnotationsRaw.Add(((string name, Dictionary<string, object> args))VisitAnnotation(annotation));
+            entity.AnnotationsRaw.Add(((string name, AnnotationArgumentHolder args))VisitAnnotation(annotation));
         }
         
         foreach (var fieldCtx in context.field())
@@ -100,7 +102,7 @@ public class VisitorImpl : RestDslBaseVisitor<object>
 
         foreach (var annotation in context._annotations)
         {
-            field.AnnotationsRaw.Add(((string name, Dictionary<string, object> args))VisitAnnotation(annotation));
+            field.AnnotationsRaw.Add(((string name, AnnotationArgumentHolder args))VisitAnnotation(annotation));
         }
 
         if (context.@default != null)
@@ -132,12 +134,17 @@ public class VisitorImpl : RestDslBaseVisitor<object>
         return new TypeInfo(context.typeid.Text, false);
     }
 
+    public override IExpression VisitExpression(RestDslParser.ExpressionContext context)
+    {
+        return (IExpression)base.VisitExpression(context);
+    }
+
     public override object VisitAnnotation(RestDslParser.AnnotationContext context)
     {
         var name = context.name.Text;
-        Dictionary<string, object> args = new();
+        Dictionary<string, IExpression> args = new();
         bool namedArgPresent = false;
-        if (context.parameterAssignmentTuple() == null) return (name, args);
+        if (context.parameterAssignmentTuple() == null) return (name, new AnnotationArgumentHolder(args));
         for (int i = 0; i < context.parameterAssignmentTuple()._params.Count; ++i)
         {
             var param = context.parameterAssignmentTuple()._params[i];
@@ -160,7 +167,7 @@ public class VisitorImpl : RestDslBaseVisitor<object>
             }
         }
 
-        return (name, args);
+        return (name, new AnnotationArgumentHolder(args));
     }
 
     public override StringExpression VisitStringLiteralExpr(RestDslParser.StringLiteralExprContext context)
@@ -182,6 +189,8 @@ public class VisitorImpl : RestDslBaseVisitor<object>
     {
         return new (context.name.Text, context.value.Text);
     }
+    
+    
 }
 
 

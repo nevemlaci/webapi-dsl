@@ -1,4 +1,6 @@
-﻿namespace WebAPI_DSL_Lib.Meta.Annotations;
+﻿using WebAPI_DSL_Lib.Meta.Annotations.ArgumentHolder;
+
+namespace WebAPI_DSL_Lib.Meta.Annotations;
 
 public class AnnotationProcessor
 {
@@ -23,7 +25,7 @@ public class AnnotationProcessor
         }
     }
     
-    public void ApplyAnnotation(string name, object o, Dictionary<string, object> args)
+    public void ApplyAnnotation(string name, object o, AnnotationArgumentHolder args)
     {
         if (!_annotations.TryGetValue(name, out var annotation))
         {

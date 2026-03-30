@@ -1,6 +1,7 @@
 ﻿using WebAPI_DSL_Lib.Info;
 using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Meta.Annotations;
+using WebAPI_DSL_Lib.Meta.Annotations.ArgumentHolder;
 using WebAPI_DSL_Lib.Meta.Expressions;
 using WebAPI_DSL_Lib.Meta.Types;
 
@@ -21,6 +22,15 @@ public class ResolverError : Exception
     }
 }
 
+/// <summary>
+/// The resolving stage is responsible for connecting the parts of the model
+/// based on the raw names stored inside the model object.
+///
+/// This usually involves finding the types of fields and expressions based
+/// on raw names and sometimes checking for duplicate/erroneous names.
+/// </summary>
+/// <param name="m"></param>
+/// <param name="annotationProcessor"></param>
 public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
 {
     public void Resolve()
@@ -34,6 +44,12 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         {
             ResolveEntity(e);
         }
+        
+        foreach (var e in m.Entities)
+        {
+            ProcessAnnotations(e);
+            
+        } 
     }
 
     private void Error(LineInfo lineInfo, string error)
@@ -42,11 +58,17 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         throw new ResolverError(error);
     }
     
+    /// <summary>
+    /// Resolve an enum.
+    /// Duplicate enum names are not allowed.
+    /// </summary>
+    /// <param name="_enum"></param>
     private void ResolveEnum(EnumDefinition _enum)
     {
         var isNameUnique = true;
-            // model.Enums.All(e => e.Name != _enum.Name) &&
-            // model.PrimitiveTypes.All(e => e.Name != _enum.Name);
+            /*m.Enums.All(e => e.Name != _enum.Name && !ReferenceEquals(e, _enum)) &&
+                           m.Primitives.All(e => e.Name != _enum.Name);*/
+             
 
         if (!isNameUnique)
         {
@@ -54,6 +76,12 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         }
     }
     
+    /// <summary>
+    /// Resolve an entity.
+    /// Duplicate entity names and entity names matching an
+    /// already defined enum name are not allowed.
+    /// </summary>
+    /// <param name="entity"></param>
     private void ResolveEntity(EntityDefinition entity)
     {
         var isNameUnique = true;
@@ -68,7 +96,7 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
 
         foreach (var (annotationName, args) in entity.AnnotationsRaw)
         {
-            annotationProcessor.ApplyAnnotation(annotationName, entity, args);
+            ResolveAnnotationArgs(args);
         }
         
         foreach (var field in entity.Fields)
@@ -77,11 +105,15 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         }
     }
 
+    /// <summary>
+    /// Resolves a field
+    /// </summary>
+    /// <param name="field">The field definition to resolve.</param>
     private void ResolveField(FieldDefinition field)
     {
         var rawTypeName = field.RawTypeName;
 
-        IType? type = m.PrimitiveTypes.Find(rawType => rawType.Name == rawTypeName);
+        IType? type = m.Primitives.Find(rawType => rawType.Name == rawTypeName);
 
         if (type != null)
         {
@@ -111,7 +143,6 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         
         foreach (var (annotationName, args) in field.AnnotationsRaw)
         {
-            annotationProcessor.ApplyAnnotation(annotationName, field, args);
             ResolveAnnotationArgs(args);
         }
     }

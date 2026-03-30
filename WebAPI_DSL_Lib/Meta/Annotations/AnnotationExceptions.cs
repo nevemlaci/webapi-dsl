@@ -1,16 +1,19 @@
 ﻿namespace WebAPI_DSL_Lib.Meta.Annotations;
 
-public class IncorrectArgumentCountException : Exception
+public class TooFewArgumentsException : Exception
 {
-    public IncorrectArgumentCountException()
-    {
-    }
 
-    public IncorrectArgumentCountException(int expectedParamCount, int givenParamCount) : 
-        base($"This annotation takes {expectedParamCount} arguments but was gives {givenParamCount}.")
-    {
-        
-    }
+    public TooFewArgumentsException(int minimum, int provided) :
+        base($"Too few arguments provided for argument! Minimum {minimum} expected, {provided} provided.")
+    {}
+}
+
+public class TooManyArgumentsException : Exception
+{
+
+    public TooManyArgumentsException(int maximum, int provided) :
+        base($"Too many arguments provided for argument! Maximum {maximum} expected, {provided} provided.")
+    {}
 }
 
 public class ArgumentNotFoundException : Exception
@@ -19,8 +22,8 @@ public class ArgumentNotFoundException : Exception
     {
     }
 
-    public ArgumentNotFoundException(string argumentName) 
-        : base($"Argument '{argumentName}' was not found in the parameter list!")
+    public ArgumentNotFoundException(string argumentName, int idx) 
+        : base($"Argument '{argumentName}' (positional argument {idx}) was not found in the parameter list!")
     {
     }
 }
@@ -31,8 +34,8 @@ public class IncorrectArgumentTypeException : Exception
     {
     }
 
-    public IncorrectArgumentTypeException(string expectedType, int paramIdx) : 
-        base($"This annotation expected a {expectedType} for argument #{paramIdx}")
+    public IncorrectArgumentTypeException(string expectedType, string paramName, int paramIdx) : 
+        base($"This annotation expected a {expectedType} for argument #{paramIdx} {paramName}")
     {
     }
 }

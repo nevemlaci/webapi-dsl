@@ -1,4 +1,6 @@
-﻿using WebAPI_DSL_Lib.Meta.Enums;
+﻿using WebAPI_DSL_Lib.Meta.Annotations;
+using WebAPI_DSL_Lib.Meta.Annotations.ArgumentHolder;
+using WebAPI_DSL_Lib.Meta.Enums;
 using WebAPI_DSL_Lib.Meta.Expressions;
 using WebAPI_DSL_Lib.Meta.Types;
 
@@ -19,7 +21,7 @@ public class FieldDefinition : MetaBase
     public bool IsRelation => Type is EntityDefinition;
     public IExpression? DefaultValue { get; set; }
 
-    public List<(string name, Dictionary<string, object> args)> AnnotationsRaw { get;} = [];
+    public List<(string name, AnnotationArgumentHolder args)> AnnotationsRaw { get;} = [];
 
     public FilterType.EFilterType Filter { get; set; } = FilterType.EFilterType.None;
     public override string ToString()
