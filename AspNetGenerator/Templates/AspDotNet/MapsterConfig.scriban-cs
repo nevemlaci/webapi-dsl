@@ -2,6 +2,7 @@ using System.Linq;
 using Mapster;
 using {{ config.entity_namespace }};
 using {{ config.dto_namespace }};
+using {{this.config.enum_namespace}};
 
 namespace {{ config.mapping_namespace }};
 

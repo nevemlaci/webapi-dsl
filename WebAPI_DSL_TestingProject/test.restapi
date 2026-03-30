@@ -12,6 +12,7 @@ entity User {
     username : string
     @Filter(FilterType::Range)
     accountAge : int
+    role : UserRole
     posts : List<Post>
 }
 

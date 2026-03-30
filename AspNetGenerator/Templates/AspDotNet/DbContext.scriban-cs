@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using {{this.config.entity_namespace}};
+using {{this.config.enum_namespace}};
 
 namespace {{this.config.db_context_namespace}};
 

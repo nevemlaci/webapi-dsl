@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Meta.Types;
 
@@ -18,9 +19,11 @@ public static class NameHelper
     {
         if (string.IsNullOrWhiteSpace(input))
             return input;
-        
-        var words = input.Split(new[] {'_', '-' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(word => char.ToUpper(word[0]) + word.Substring(1).ToLower());
+
+        var matches = Regex.Matches(input, @"[A-Z]*[a-z0-9]+|[A-Z0-9]+");
+
+        var words = matches
+            .Select(match => char.ToUpper(match.Value[0]) + match.Value.Substring(1).ToLower());
 
         return string.Concat(words);
     }

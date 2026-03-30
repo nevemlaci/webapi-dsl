@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using {{ this.config.entity_namespace }};
 using {{ this.config.db_context_namespace }};
 using {{ this.config.dto_namespace }};
+using {{this.config.enum_namespace}};
 
 namespace {{ this.config.controller_namespace }};
 

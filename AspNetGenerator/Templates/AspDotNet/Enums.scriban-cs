@@ -1,0 +1,8 @@
+namespace {{this.config.enum_namespace}};
+
+public enum {{ enum.name }}
+{
+{{- for value in enum.values }}
+    {{ value }}{{ if !for.last }},{{ end }}
+{{- end }}
+}
