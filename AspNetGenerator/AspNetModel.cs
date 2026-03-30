@@ -12,7 +12,8 @@ public class AspNetModel
         string EntityNamespace,
         string ControllerNamespace,
         string DtoNamespace,
-        string MappingNamespace
+        string MappingNamespace,
+        string EnumNamespace
         );
 
     public ModelConfig Config => new ModelConfig(
@@ -20,22 +21,26 @@ public class AspNetModel
         EntityNamespace: EntityNamespace,
         ControllerNamespace: ControllerNamespace,
         DtoNamespace: DtoNamespace,
-        MappingNamespace: MappingNamespace
+        MappingNamespace: MappingNamespace,
+        EnumNamespace: EnumNamespace
     );
     
     private DbContextSource dbContextSource = new();
     private List<ControllerSource> controllers = [];
     private List<DtoSource> dtos = [];
     private List<EntitySource> entities = [];
+    private List<EnumSource> enums = [];
     private string ControllerNamespace { get;}
     private string DtoNamespace { get;}
     private string DbContextNamespace { get;}
     private string EntityNamespace { get;}
     private string MappingNamespace { get; }
+    private string EnumNamespace { get; }
 
     public IImmutableList<ControllerSource> Controllers => controllers.ToImmutableList();
     public IImmutableList<DtoSource> Dtos => dtos.ToImmutableList();
     public IImmutableList<EntitySource> Entities => entities.ToImmutableList();
+    public IImmutableList<EnumSource> Enums => enums.ToImmutableList();
     public DbContextSource DbContext => dbContextSource;
 
     public AspNetModel(DomainModel model)
@@ -45,7 +50,13 @@ public class AspNetModel
         DbContextNamespace = model.Config["baseNamespace"] + ".Generated.DbContext";
         EntityNamespace = model.Config["baseNamespace"] + ".Generated.Entities";
         MappingNamespace = model.Config["baseNamespace"] + ".Generated.Mappings";
+        EnumNamespace =  model.Config["baseNamespace"] + ".Generated.Enums";
         
+        foreach (var enum_ in model.UserDefinedEnums)
+        {
+            var enumSource = new EnumSource() { Name = enum_.Name, Values = enum_.Values };
+            enums.Add(enumSource);
+        }
         
         foreach (var modelEntity in model.Entities)
         {

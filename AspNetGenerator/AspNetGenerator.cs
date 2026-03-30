@@ -25,11 +25,38 @@ public class AspNetGenerator : ISourceGenerator
         aspNetModel = new AspNetModel(model);
         templateDir = Path.Join(AppContext.BaseDirectory, "Templates", "AspDotNet");
         baseOutputDir = Path.Join(outputDir, "Generated");
+        GenerateEnums(outputDir);
         GenerateDbContext(outputDir);
         GenerateControllers(outputDir);
         GenerateDtos(outputDir);
         GenerateEntities(outputDir);
         GenerateMappings();
+    }
+
+    private void GenerateEnums(string outputDir)
+    {
+        var directoryPath = Path.Join(baseOutputDir, "Enums");
+        Directory.CreateDirectory(directoryPath);
+        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Enums.scriban-cs")));
+        foreach (var enum_ in aspNetModel.Enums)
+        {
+            var templateContext = new TemplateContext
+            {
+                TemplateLoader = new FileSystemLoader(templateDir)
+            };
+            var scriptObject = new ScriptObject();
+            scriptObject.Import(new
+            {
+                Config = aspNetModel.Config,
+                Enum = enum_
+            });
+            templateContext.PushGlobal(scriptObject);
+            var result = entityTemplate.Render(templateContext);
+            var filePath = Path.Join(directoryPath, $"{enum_.Name}.cs");
+            CsCodeChecker.AssertCodeCompiles(filePath, result);
+            File.WriteAllText(filePath, result);
+        }
+        
     }
 
     private void GenerateDbContext(string outputDir)
@@ -52,7 +79,6 @@ public class AspNetGenerator : ISourceGenerator
         var filePath = Path.Join(directoryPath, $"{aspNetModel.DbContext.ClassName}.cs");
         CsCodeChecker.AssertCodeCompiles(filePath, result);
         File.WriteAllText(filePath, result);
-        
     }
     
     private void GenerateDtos(string outputDir)

@@ -34,7 +34,7 @@ public class VisitorImpl : RestDslBaseVisitor<object>
                     model.Entities.Add((EntityDefinition)Visit(entityCtx));
                     break;
                 case RestDslParser.EnumDeclarationContext enumCtx:
-                    model.Enums.Add((EnumDefinition)Visit(enumCtx));
+                    model.UserDefinedEnums.Add((EnumDefinition)Visit(enumCtx));
                     break;
             }
         }

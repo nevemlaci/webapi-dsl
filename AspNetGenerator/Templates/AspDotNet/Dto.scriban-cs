@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using {{this.config.enum_namespace}};
 
 namespace {{ this.config.dto_namespace }};
 

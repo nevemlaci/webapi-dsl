@@ -26,6 +26,9 @@
       <None Update="Templates\AspDotNet\Entity.scriban-cs">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Templates\AspDotNet\Enums.scriban-cs">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

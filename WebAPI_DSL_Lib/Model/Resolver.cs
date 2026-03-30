@@ -1,6 +1,7 @@
 ﻿using WebAPI_DSL_Lib.Info;
 using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Meta.Annotations;
+using WebAPI_DSL_Lib.Meta.Expressions;
 using WebAPI_DSL_Lib.Meta.Types;
 
 namespace WebAPI_DSL_Lib.Model;
@@ -88,7 +89,7 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         }
         else
         {
-            type = m.Enums.Find(e => e.Name == rawTypeName);
+            type = m.Enums.FirstOrDefault(e => e.Name == rawTypeName);
             if (type != null)
             {
                 field.Type = type;
@@ -111,6 +112,52 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         foreach (var (annotationName, args) in field.AnnotationsRaw)
         {
             annotationProcessor.ApplyAnnotation(annotationName, field, args);
+            ResolveAnnotationArgs(args);
+        }
+    }
+
+    /// <summary>
+    /// Resolves the expressions passed as arguments to annotations.
+    /// </summary>
+    /// <param name="args"></param>
+    private void ResolveAnnotationArgs(AnnotationArgumentHolder args)
+    {
+        foreach (var (_, argValue) in args)
+        {
+            ResolveExpression(argValue);
+        }
+    }
+
+    /// <summary>
+    /// Resolves an expression.
+    /// </summary>
+    /// <param name="e"></param>
+    private void ResolveExpression(IExpression e)
+    {
+        if (e is EnumExpression en)
+        {
+            en.EnumType = m.Enums.FirstOrDefault(_e => _e.Name == en.RawEnumType);
+        }
+    }
+
+    private void ProcessAnnotations(EntityDefinition e)
+    {
+        foreach (var (annotationName, args) in e.AnnotationsRaw)
+        {
+            annotationProcessor.ApplyAnnotation(annotationName, e, args);
+        }
+
+        foreach (var field in e.Fields)
+        {
+            ProcessFieldAnnotations(field);
+        }
+    }
+
+    private void ProcessFieldAnnotations(FieldDefinition f)
+    {
+        foreach (var (annotationName, args) in f.AnnotationsRaw)
+        {
+            annotationProcessor.ApplyAnnotation(annotationName, f, args);
         }
     }
 }
