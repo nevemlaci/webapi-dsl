@@ -1,18 +1,19 @@
 ﻿using WebAPI_DSL_Lib;
+using WebAPI_DSL_Lib.Generator;
 using WebAPI_DSL_Lib.Model;
 
 namespace WebAPI_DSL_Main;
 
 public class GeneratorSelector
 {
-    private readonly Dictionary<string, Func<DomainModel, ISourceGenerator>> _generators = new()
+    private readonly Dictionary<string, Func<ISourceGenerator>> _generators = new()
     {
-        { "aspnet", m => new AspNetGenerator.AspNetGenerator(m) },
+        { "aspnet", () => new AspNetGenerator.AspNetGenerator() },
     };
 
-    public ISourceGenerator? GetGenerator(string key, DomainModel m)
+    public ISourceGenerator? GetGenerator(string key)
     {
-        return _generators[key]?.Invoke(m);
+        return _generators[key]?.Invoke();
     }
 
 }

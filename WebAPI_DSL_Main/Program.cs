@@ -28,9 +28,7 @@ internal static class Program
                     }
 
                     generatorName = options.Generator;
-
                 }
-
             );
         
         var src = File.ReadAllText(filename);
@@ -58,8 +56,8 @@ internal static class Program
         }
         
         GeneratorSelector generatorSelector = new();
-        var generator = generatorSelector.GetGenerator(generatorName, model);
+        var generator = generatorSelector.GetGenerator(generatorName);
         
-        generator?.Codegen(outputDir);
+        generator?.Codegen(outputDir, model);
     }
 }

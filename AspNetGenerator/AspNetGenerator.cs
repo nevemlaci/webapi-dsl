@@ -3,185 +3,148 @@ using Scriban;
 using Scriban.Runtime;
 using WebAPI_DSL_GeneratorsCommon;
 using WebAPI_DSL_Lib;
+using WebAPI_DSL_Lib.Generator;
 using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Model;
 
 namespace AspNetGenerator;
 
-public class AspNetGenerator : ISourceGenerator
+public class AspNetGenerator : ISourceGenerator<IAspNetModel>
 {
-    private DomainModel model;
-    private AspNetModel aspNetModel;
+    private IAspNetModel aspNetModel;
     private string templateDir;
     private string baseOutputDir;
 
-    public AspNetGenerator(DomainModel m)
+    public void Codegen(string outputDir, DomainModel domainModel)
     {
-        model = m;
+        Codegen(outputDir, new AspNetModel(domainModel));
     }
-    
-    public void Codegen(string outputDir)
+
+    public void Codegen(string outputDir, IAspNetModel _aspNetModel)
     {
-        aspNetModel = new AspNetModel(model);
+        aspNetModel = _aspNetModel;
+        if (aspNetModel is null)
+        {
+            throw new ArgumentException("Invalid model type!");
+        }
         templateDir = Path.Join(AppContext.BaseDirectory, "Templates", "AspDotNet");
         baseOutputDir = Path.Join(outputDir, "Generated");
-        GenerateEnums(outputDir);
-        GenerateDbContext(outputDir);
-        GenerateControllers(outputDir);
-        GenerateDtos(outputDir);
-        GenerateEntities(outputDir);
+        GenerateEnums();
+        GenerateDbContext();
+        GenerateControllers();
+        GenerateDtos();
+        GenerateEntities();
         GenerateMappings();
     }
 
-    private void GenerateEnums(string outputDir)
+    private void CheckAndGenerateFile(string filePath, string content)
+    {
+        CsCodeChecker.AssertCodeCompiles(filePath, content);
+        File.WriteAllText(filePath, content);
+    }
+
+    private void GenerateEnums()
     {
         var directoryPath = Path.Join(baseOutputDir, "Enums");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Enums.scriban-cs")));
+        var enumTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Enums.scriban-cs")));
+        
         foreach (var enum_ in aspNetModel.Enums)
         {
-            var templateContext = new TemplateContext
-            {
-                TemplateLoader = new FileSystemLoader(templateDir)
-            };
-            var scriptObject = new ScriptObject();
-            scriptObject.Import(new
+            var filePath = Path.Join(directoryPath, $"{enum_.Name}.cs");
+            var result = ScribanGeneration.GenerateStringFromTemplate(enumTemplate, filePath, new
             {
                 Config = aspNetModel.Config,
                 Enum = enum_
             });
-            templateContext.PushGlobal(scriptObject);
-            var result = entityTemplate.Render(templateContext);
-            var filePath = Path.Join(directoryPath, $"{enum_.Name}.cs");
-            CsCodeChecker.AssertCodeCompiles(filePath, result);
-            File.WriteAllText(filePath, result);
+            CheckAndGenerateFile(filePath, result);
         }
-        
+
     }
 
-    private void GenerateDbContext(string outputDir)
+    private void GenerateDbContext()
     {
         var directoryPath = Path.Join(baseOutputDir, "DbContext");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "DbContext.scriban-cs")));
-        var templateContext = new TemplateContext
-        {
-            TemplateLoader = new FileSystemLoader(templateDir)
-        };
-        var scriptObject = new ScriptObject();
-        scriptObject.Import(new
+        var dbContextTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "DbContext.scriban-cs")));
+        var filePath = Path.Join(directoryPath, $"{aspNetModel.DbContext.ClassName}.cs");
+        var result = ScribanGeneration.GenerateStringFromTemplate(dbContextTemplate, filePath, new
         {
             Config = aspNetModel.Config,
             dbContext = aspNetModel.DbContext
         });
-        templateContext.PushGlobal(scriptObject);
-        var result = entityTemplate.Render(templateContext);
-        var filePath = Path.Join(directoryPath, $"{aspNetModel.DbContext.ClassName}.cs");
-        CsCodeChecker.AssertCodeCompiles(filePath, result);
-        File.WriteAllText(filePath, result);
+        CheckAndGenerateFile(filePath, result);
     }
-    
-    private void GenerateDtos(string outputDir)
+
+    private void GenerateDtos()
     {
         var directoryPath = Path.Join(baseOutputDir, "Dtos");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Dto.scriban-cs")));
-        
+        var dtoTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Dto.scriban-cs")));
+
         foreach (var dto in aspNetModel.Dtos)
         {
-            var templateContext = new TemplateContext
-            {
-                TemplateLoader = new FileSystemLoader(templateDir)
-            };
-            var scriptObject = new ScriptObject();
-            scriptObject.Import(new
+            var filePath = Path.Join(directoryPath, $"{dto.ClassName}.cs");
+            var result = ScribanGeneration.GenerateStringFromTemplate(dtoTemplate, filePath, new
             {
                 Config = aspNetModel.Config,
                 Dto = dto
             });
-            templateContext.PushGlobal(scriptObject);
-            var result = entityTemplate.Render(templateContext);
-            var filePath = Path.Join(directoryPath, $"{dto.ClassName}.cs");
-            CsCodeChecker.AssertCodeCompiles(filePath, result);
-            File.WriteAllText(filePath, result);
+            CheckAndGenerateFile(filePath, result);
         }
     }
-    
-    private void GenerateEntities(string outputDir)
+
+    private void GenerateEntities()
     {
         var directoryPath = Path.Join(baseOutputDir, "Entities");
         Directory.CreateDirectory(directoryPath);
         var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Entity.scriban-cs")));
-        
+
         foreach (var entity in aspNetModel.Entities)
         {
-            var templateContext = new TemplateContext
-            {
-                TemplateLoader = new FileSystemLoader(templateDir)
-            };
-            var scriptObject = new ScriptObject();
-            scriptObject.Import(new
+            var filePath = Path.Join(directoryPath, $"{entity.ClassName}.cs");
+            var result = ScribanGeneration.GenerateStringFromTemplate(entityTemplate, filePath, new
             {
                 Config = aspNetModel.Config,
                 Entity = entity
             });
-            templateContext.PushGlobal(scriptObject);
-            var result = entityTemplate.Render(templateContext);
-            var filePath = Path.Join(directoryPath, $"{entity.ClassName}.cs");
-            CsCodeChecker.AssertCodeCompiles(filePath, result);
-            File.WriteAllText(filePath, result);
+            CheckAndGenerateFile(filePath, result);
         }
     }
-    
+
     private void GenerateMappings()
     {
         var directoryPath = Path.Join(baseOutputDir, "Mappings");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "MapsterConfig.scriban-cs")));
-        
+        var mappingTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "MapsterConfig.scriban-cs")));
+
         foreach (var entity in aspNetModel.Entities)
         {
-            var templateContext = new TemplateContext
-            {
-                TemplateLoader = new FileSystemLoader(templateDir)
-            };
-            var scriptObject = new ScriptObject();
-            scriptObject.Import(new
+            var filePath = Path.Join(directoryPath, $"{entity.ClassName}Mapping.cs");
+            var result = ScribanGeneration.GenerateStringFromTemplate(mappingTemplate, filePath, new
             {
                 Config = aspNetModel.Config,
                 Entity = entity
             });
-            templateContext.PushGlobal(scriptObject);
-            var result = entityTemplate.Render(templateContext);
-            var filePath = Path.Join(directoryPath, $"{entity.ClassName}Mapping.cs");
-            CsCodeChecker.AssertCodeCompiles(filePath, result);
-            File.WriteAllText(filePath, result);
+            CheckAndGenerateFile(filePath, result);
         }
     }
 
-    private void GenerateControllers(string outputDir)
+    private void GenerateControllers()
     {
         var directoryPath = Path.Join(baseOutputDir, "Controllers");
         Directory.CreateDirectory(directoryPath);
-        var entityTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Controller.scriban-cs")));
-        
+        var controllerTemplate = Template.Parse(File.ReadAllText(Path.Join(templateDir, "Controller.scriban-cs")));
+
         foreach (var controller in aspNetModel.Controllers)
         {
-            var templateContext = new TemplateContext
-            {
-                TemplateLoader = new FileSystemLoader(templateDir)
-            };
-            var scriptObject = new ScriptObject();
-            scriptObject.Import(new
+            var filePath = Path.Join(directoryPath, $"{controller.ClassName}.cs");
+            var result = ScribanGeneration.GenerateStringFromTemplate(controllerTemplate, filePath, new
             {
                 Config = aspNetModel.Config,
                 Controller = controller
             });
-            templateContext.PushGlobal(scriptObject);
-            var result = entityTemplate.Render(templateContext);
-            var filePath = Path.Join(directoryPath, $"{controller.ClassName}.cs");
-            CsCodeChecker.AssertCodeCompiles(filePath, result);
-            File.WriteAllText(filePath, result);
+            CheckAndGenerateFile(filePath, result);
         }
     }
 }

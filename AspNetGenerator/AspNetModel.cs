@@ -5,18 +5,10 @@ using WebAPI_DSL_Lib.Model;
 
 namespace AspNetGenerator;
 
-public class AspNetModel
+public class AspNetModel : IAspNetModel
 {
-    public record ModelConfig(
-        string DbContextNamespace,
-        string EntityNamespace,
-        string ControllerNamespace,
-        string DtoNamespace,
-        string MappingNamespace,
-        string EnumNamespace
-        );
 
-    public ModelConfig Config => new ModelConfig(
+    public IAspNetModel.ModelConfig Config => new(
         DbContextNamespace: DbContextNamespace,
         EntityNamespace: EntityNamespace,
         ControllerNamespace: ControllerNamespace,
