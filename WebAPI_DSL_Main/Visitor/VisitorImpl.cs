@@ -12,6 +12,9 @@ namespace WebAPI_DSL_Main.Visitor;
 
 public class VisitorImpl : RestDslBaseVisitor<object>
 {
+
+    private readonly Logger logger = new("AST Visitor");
+    
     private LineInfo GetLineInfo(ParserRuleContext ctx)
     {
         return new(ctx.Start.Line, ctx.Start.Column);
@@ -154,7 +157,7 @@ public class VisitorImpl : RestDslBaseVisitor<object>
                 namedArgPresent = true;
             }else if (namedArgPresent)
             {
-                Logger.Error(GetLineInfo(param), $"Unnamed parameter not allowed after named " +
+                logger.Error(GetLineInfo(param), $"Unnamed parameter not allowed after named " +
                                                  $"parameter was already present!");
                 //TODO throw
             }
@@ -162,7 +165,7 @@ public class VisitorImpl : RestDslBaseVisitor<object>
             var paramvalue = VisitExpression(param.value);
             if (!args.TryAdd(paramname, paramvalue))
             {
-                Logger.Error(GetLineInfo(param), $"Duplicate parameter: {paramname}");
+                logger.Error(GetLineInfo(param), $"Duplicate parameter: {paramname}");
                 //TODO throw
             }
         }
@@ -187,7 +190,7 @@ public class VisitorImpl : RestDslBaseVisitor<object>
 
     public override EnumExpression VisitEnumValue(RestDslParser.EnumValueContext context)
     {
-        return new (context.name.Text, context.value.Text);
+        return new EnumExpression{ RawEnumType = context.name.Text, EnumValue = context.value.Text};
     }
     
     

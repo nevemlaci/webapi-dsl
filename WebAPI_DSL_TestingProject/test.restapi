@@ -17,6 +17,11 @@ entity User {
     accountAge : int
     role : UserRole
     posts : List<Post>
+    
+    @Unique
+    bestFriend : User
+    
+    firends : List<User>
 }
 
 @Route("posts")

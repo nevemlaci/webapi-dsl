@@ -2,12 +2,17 @@
 
 namespace WebAPI_DSL_Lib.Meta.Expressions;
 
-public class EnumExpression(string enumType, string enumValue) : MetaBase, IExpression
+public class EnumExpression : MetaBase, IExpression
 {
-    public string RawEnumType { get; init; } = enumType;
+    public string RawEnumType { get; set; }
     
     public EnumDefinition? EnumType { get; set; }
     
-    public string EnumValue { get; init; } = enumValue;
+    public string EnumValue { get; set; }
     public IType Type => EnumType;
+
+    public override string ToString()
+    {
+        return $"{EnumType.Name}::{EnumValue}";
+    }
 }

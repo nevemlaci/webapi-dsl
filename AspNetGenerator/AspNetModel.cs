@@ -139,45 +139,64 @@ public class AspNetModel : IAspNetModel
     }
 
     private void ProcessRelationField(FieldDefinition modelField, EntitySource entity, DtoSource dto)
+{
+    var pascalFieldName = NameHelper.ToPascal(modelField.Name);
+    var fieldTypeName = NameHelper.GetTypeOfField(modelField);
+
+    dto.Fields.Add(new DtoFieldDefinition
     {
-        var pascalFieldName = NameHelper.ToPascal(modelField.Name);
-        var fieldTypeName = NameHelper.GetTypeOfField(modelField);
+        Type = "Guid",
+        Name = $"{pascalFieldName}Id",
+        IsList = modelField.IsList,
+        IsRequired = modelField.IsRequired
+    });
+    
+    var entityField = new EntityFieldSource
+    {
+        Name = pascalFieldName,
+        Type = fieldTypeName,
+        IsRelation = true,
+        IsList = modelField.IsList,
+        IsUnique = modelField.IsUnique
+    };
 
-        dto.Fields.Add(new DtoFieldDefinition
-        {
-            Type = "Guid",
-            Name = $"{pascalFieldName}Id",
-            IsList = modelField.IsList,
-            IsRequired = modelField.IsRequired
-        });
+    if (!modelField.IsList)
+    {
+        entityField.ForeignKeyName = $"{pascalFieldName}Id";
 
-        var entityField = new EntityFieldSource
-        {
-            Name = pascalFieldName,
-            Type = fieldTypeName,
-            IsRelation = true,
-            IsList = modelField.IsList,
-            IsUnique = modelField.IsUnique
-        };
-
-        if (!modelField.IsList)
-        {
-            entityField.ForeignKeyName = $"{pascalFieldName}Id";
-
-            dbContextSource.Relationships.Add(
-                new()
-                {
-                    PrincipalEntity = fieldTypeName,
-                    DependentEntity = entity.ClassName,
-                    NavigationProperty = pascalFieldName,
-                    CollectionProperty = entity.ClassName + 's',
-                    ForeignKeyName = pascalFieldName + "Id"
-                }
-            );
-        }
-
-        entity.Fields.Add(entityField);
+        dbContextSource.Relationships.Add(
+            new RelationshipSource
+            {
+                PrincipalEntity = fieldTypeName,
+                DependentEntity = entity.ClassName,
+                NavigationProperty = pascalFieldName,
+                CollectionProperty = modelField.IsUnique ? pascalFieldName : entity.ClassName + "s",
+                ForeignKeyName = pascalFieldName + "Id",
+                IsOneToOne = modelField.IsUnique 
+            }
+        );
     }
+    else if (fieldTypeName == entity.ClassName) 
+    {
+        var singularName = pascalFieldName.EndsWith("s") 
+            ? pascalFieldName.Substring(0, pascalFieldName.Length - 1) 
+            : pascalFieldName;
+
+        dbContextSource.Relationships.Add(
+            new RelationshipSource
+            {
+                IsSelfReferencingManyToMany = true,
+                PrincipalEntity = entity.ClassName,
+                NavigationProperty = pascalFieldName,
+                JoinTableName = $"{entity.ClassName}{pascalFieldName}", 
+                LeftForeignKey = $"{entity.ClassName}Id",               
+                RightForeignKey = $"{singularName}Id"                   
+            }
+        );
+    }
+
+    entity.Fields.Add(entityField);
+}
 
     private void ProcessPrimitiveField(FieldDefinition modelField, EntitySource entity, DtoSource dto)
     {

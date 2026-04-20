@@ -19,13 +19,16 @@ public class {{ this.entity.class_name }}
     public virtual ICollection<{{ field.type }}> {{ field.name }} { get; set; } = new List<{{ field.type }}>();
         {{~ else ~}}
 
-    public Guid {{ field.foreign_key_name }} { get; set; }
+    public Guid{{ if !field.is_required }}?{{ end }} {{ field.foreign_key_name }} { get; set; }
 
     [ForeignKey("{{ field.foreign_key_name }}")]
     public virtual {{ field.type }} {{ field.name }} { get; set; }
         {{~ end ~}}
     {{~ else ~}}
-
+    {{~ if field.is_required ~}}
+    
+        [Required]
+    {{~ end ~}}
     public {{ field.type }} {{ field.name }} { get; set; }
     {{~ end ~}}
     {{~ end ~}}

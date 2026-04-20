@@ -12,5 +12,11 @@ public class Args
     
     [Option('g', "generator", Required = true)]
     public string? Generator { get; set; }
+    
+    [Option('m', "model", Required = false)]
+    public string? Model { get; set; }
+    
+    [Option('l', "loglevel", Required = false)]
+    public string? LogLevel { get; set; } 
 }
 

@@ -9,20 +9,20 @@ using WebAPI_DSL_Lib.Model;
 
 namespace AspNetGenerator;
 
-public class AspNetGenerator : ISourceGenerator<IAspNetModel>
+public class AspNetGenerator : SourceGenerator<IAspNetModel>
 {
     private IAspNetModel aspNetModel;
     private string templateDir;
     private string baseOutputDir;
 
-    public void Codegen(string outputDir, DomainModel domainModel)
+    public override void Codegen(string outputDir, DomainModel domainModel)
     {
         Codegen(outputDir, new AspNetModel(domainModel));
     }
 
-    public void Codegen(string outputDir, IAspNetModel _aspNetModel)
+    public override void Codegen(string outputDir, IAspNetModel generatorSpecificModelFactory)
     {
-        aspNetModel = _aspNetModel;
+        aspNetModel = generatorSpecificModelFactory;
         if (aspNetModel is null)
         {
             throw new ArgumentException("Invalid model type!");

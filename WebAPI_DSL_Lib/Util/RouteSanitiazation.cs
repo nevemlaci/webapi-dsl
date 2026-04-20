@@ -6,6 +6,10 @@ public static class RouteSanitiazation
 {
     public static string SanitizeRoute(string route)
     {
+        if (route == null)
+        {
+            throw new ArgumentException("Route cannot be null!");
+        }
         route = route.Trim();
         
         if (string.IsNullOrWhiteSpace(route))

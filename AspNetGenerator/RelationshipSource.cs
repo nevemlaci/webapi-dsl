@@ -2,9 +2,16 @@
 
 public class RelationshipSource
 {
-    public string PrincipalEntity { get; set; } // A "fő" entitás (pl. User)
-    public string DependentEntity { get; set; } // Az "alárendelt" entitás (pl. Post)
-    public string NavigationProperty { get; set; } // pl. "Author"
-    public string CollectionProperty { get; set; } // pl. "Posts"
-    public string ForeignKeyName { get; set; }     // pl. "UserId"
+    public string PrincipalEntity { get; set; }
+    public string DependentEntity { get; set; } 
+    public string NavigationProperty { get; set; } 
+    public string CollectionProperty { get; set; } 
+    public string ForeignKeyName { get; set; }   
+    
+    public bool IsSelfReferencingManyToMany { get; set; } = false;
+    public string JoinTableName { get; set; }  
+    public string LeftForeignKey { get; set; }    
+    public string RightForeignKey { get; set; }   
+    
+    public bool IsOneToOne { get; set; } = false;
 }

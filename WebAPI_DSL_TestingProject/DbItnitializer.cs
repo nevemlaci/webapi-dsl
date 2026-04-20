@@ -23,9 +23,10 @@ public static class DbInitializer
         var user2 = new User { 
             Id = Guid.NewGuid(), 
             Username = "BobCoder",
-            AccountAge = 2
+            AccountAge = 2,
         };
 
+        
         var posts = new List<Post>
         {
             new Post { 
@@ -51,6 +52,14 @@ public static class DbInitializer
         // 5. Save to Database
         await context.Users.AddRangeAsync(user1, user2);
         await context.Posts.AddRangeAsync(posts);
+        await context.SaveChangesAsync();
+        
+        user1.BestFriend = user2;
+        user2.BestFriend = user1;
+        
+        user1.Firends.Add(user2);
+        user2.Firends.Add(user1);
+        
         await context.SaveChangesAsync();
     }
 }

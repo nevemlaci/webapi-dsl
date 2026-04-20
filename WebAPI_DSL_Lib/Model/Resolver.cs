@@ -9,6 +9,7 @@ namespace WebAPI_DSL_Lib.Model;
 
 public class ResolverError : Exception
 {
+    
     public ResolverError()
     {
     }
@@ -33,28 +34,57 @@ public class ResolverError : Exception
 /// <param name="annotationProcessor"></param>
 public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
 {
-    public void Resolve()
+    private readonly Logger logger = new("Resolver");
+    public bool Resolve()
     {
+        bool success = true;
         foreach (var e in m.Enums)
         {
-            ResolveEnum(e);
+            try
+            {
+                ResolveEnum(e);
+            }
+            catch (ResolverError)
+            {
+                success = false;
+            }
         }
 
         foreach (var e in m.Entities)
         {
-            ResolveEntity(e);
+            try
+            {
+                ResolveEntity(e);
+            }
+            catch (ResolverError)
+            {
+                success = false;
+            }
         }
         
         foreach (var e in m.Entities)
         {
-            ProcessAnnotations(e);
-            
-        } 
+            try
+            {
+                ProcessAnnotations(e);
+            }
+            catch (ResolverError)
+            {
+                success = false;
+            }
+        }
+
+        if (success)
+        {
+            logger.Info(null, "Resolving succesful!");
+        }
+        
+        return success;
     }
 
     private void Error(LineInfo lineInfo, string error)
     {
-        Logger.Error(lineInfo, error);
+        logger.Error(lineInfo, error);
         throw new ResolverError(error);
     }
     
@@ -65,10 +95,9 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
     /// <param name="_enum"></param>
     private void ResolveEnum(EnumDefinition _enum)
     {
-        var isNameUnique = true;
-            /*m.Enums.All(e => e.Name != _enum.Name && !ReferenceEquals(e, _enum)) &&
-                           m.Primitives.All(e => e.Name != _enum.Name);*/
-             
+        logger.Trace($"Resolving enum {_enum.Name}");
+        var isNameUnique = m.Enums.Count(e => e.Name == _enum.Name) <= 1 &&
+                           m.Primitives.All(e => e.Name != _enum.Name);
 
         if (!isNameUnique)
         {
@@ -84,18 +113,31 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
     /// <param name="entity"></param>
     private void ResolveEntity(EntityDefinition entity)
     {
-        var isNameUnique = true;
-            // model.Enums.All(e => e.Name != entity.Name) &&
-            // model.PrimitiveTypes.All(e => e.Name != entity.Name) &&
-            // model.Entities.All(e => e.Name != entity.Name);
+        logger.Trace($"Resolving entity {entity.Name}");
+        var isNameUnique = m.Enums.All(e => e.Name != entity.Name) &&
+                           m.Primitives.All(e => e.Name != entity.Name) &&
+                           m.Entities.Count(e => e.Name == entity.Name) <= 1;
         
         if (!isNameUnique)
         {
             Error(entity.LineInfo, $"Entity name {entity.Name} is not unique!");
         }
+        
+        logger.Trace("Checking field name uniqueness!");
+        var fieldNames = new HashSet<string>();
+        foreach (var field in entity.Fields)
+        {
+            if (!fieldNames.Add(field.Name))
+            {
+                Error(field.LineInfo, $"Field name {field.Name} is not unique in entity {entity.Name}!");
+            }
+        }
+        logger.Trace("Field names were unique");
 
+        logger.Trace($"Resolving annotation args on entity {entity.Name}");
         foreach (var (annotationName, args) in entity.AnnotationsRaw)
         {
+            logger.Trace($"Resolving args of annotation {annotationName}");
             ResolveAnnotationArgs(args);
         }
         
@@ -111,6 +153,7 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
     /// <param name="field">The field definition to resolve.</param>
     private void ResolveField(FieldDefinition field)
     {
+        logger.Trace($"Resolving field {field.Name}");
         var rawTypeName = field.RawTypeName;
 
         IType? type = m.Primitives.Find(rawType => rawType.Name == rawTypeName);
@@ -118,6 +161,7 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
         if (type != null)
         {
             field.Type = type;
+            logger.Trace($"Resolved field type to {type.Name}");
         }
         else
         {
@@ -125,6 +169,7 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
             if (type != null)
             {
                 field.Type = type;
+                logger.Trace($"Resolved field type to {type.Name}");
             }
             else
             {
@@ -132,17 +177,18 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
                 if (type != null)
                 {
                     field.Type = type;
+                    logger.Trace($"Resolved field type to {type.Name}");
                 }
                 else
                 {
                     Error(field.LineInfo, $"Unknown type: {rawTypeName}");
-                    //TODO throw
                 }
             }
         }
         
         foreach (var (annotationName, args) in field.AnnotationsRaw)
         {
+            logger.Trace($"Processing annotation {annotationName}");
             ResolveAnnotationArgs(args);
         }
     }
@@ -153,8 +199,9 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
     /// <param name="args"></param>
     private void ResolveAnnotationArgs(AnnotationArgumentHolder args)
     {
-        foreach (var (_, argValue) in args)
+        foreach (var (argName, argValue) in args)
         {
+            logger.Trace($"Resolving arg {argName}");
             ResolveExpression(argValue);
         }
     }
@@ -165,29 +212,38 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
     /// <param name="e"></param>
     private void ResolveExpression(IExpression e)
     {
+        logger.Trace($"Resolving expression");
         if (e is EnumExpression en)
         {
+            logger.Trace("Resolving enum expression");
             en.EnumType = m.Enums.FirstOrDefault(_e => _e.Name == en.RawEnumType);
+            //TODO Error here if en.EnumType is null
         }
+        logger.Trace($"Resolved value: {e}");
     }
 
     private void ProcessAnnotations(EntityDefinition e)
     {
+        logger.Trace($"Processing annotations for entity {e.Name}");
         foreach (var (annotationName, args) in e.AnnotationsRaw)
         {
+            logger.Trace($"Processing annotation {annotationName}");
             annotationProcessor.ApplyAnnotation(annotationName, e, args);
         }
 
         foreach (var field in e.Fields)
         {
+            
             ProcessFieldAnnotations(field);
         }
     }
 
     private void ProcessFieldAnnotations(FieldDefinition f)
     {
+        logger.Trace($"Processing annotations for field {f.Name}");
         foreach (var (annotationName, args) in f.AnnotationsRaw)
         {
+            logger.Trace($"Processing annotation {annotationName}");
             annotationProcessor.ApplyAnnotation(annotationName, f, args);
         }
     }

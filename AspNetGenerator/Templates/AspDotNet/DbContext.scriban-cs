@@ -21,7 +21,7 @@ public class {{ this.db_context.class_name }} : Microsoft.EntityFrameworkCore.Db
 
         {{~ for set in this.db_context.db_sets ~}}
         {{~ for field in set.entity.fields ~}}
-        {{~ if field.is_unique ~}}
+        {{~ if field.is_unique && !field.is_relation ~}}
         modelBuilder.Entity<{{ set.entity_name }}>()
             .HasIndex(e => e.{{ field.name }})
             .IsUnique();
@@ -30,10 +30,34 @@ public class {{ this.db_context.class_name }} : Microsoft.EntityFrameworkCore.Db
         {{~ end ~}}
 
         {{~ for rel in this.db_context.relationships ~}}
+        {{~ if rel.is_self_referencing_many_to_many ~}}
+        modelBuilder.Entity<{{ rel.principal_entity }}>()
+                    .HasMany(e => e.{{ rel.navigation_property }})
+                    .WithMany()
+                    .UsingEntity<Dictionary<string, object>>(
+                        "{{ rel.join_table_name }}",
+                        j => j
+                            .HasOne<{{ rel.principal_entity }}>()
+                            .WithMany()
+                            .HasForeignKey("{{ rel.right_foreign_key }}")
+                            .OnDelete(DeleteBehavior.Restrict),
+                        j => j
+                            .HasOne<{{ rel.principal_entity }}>()
+                            .WithMany()
+                            .HasForeignKey("{{ rel.left_foreign_key }}")
+                            .OnDelete(DeleteBehavior.Restrict)
+                    );
+        {{~ else if rel.is_one_to_one ~}}
+        modelBuilder.Entity<{{ rel.dependent_entity }}>()
+            .HasOne(d => d.{{ rel.navigation_property }})
+            .WithOne()
+            .HasForeignKey<{{ rel.dependent_entity }}>(d => d.{{ rel.foreign_key_name }});
+        {{~ else ~}}
         modelBuilder.Entity<{{ rel.dependent_entity }}>()
             .HasOne(d => d.{{ rel.navigation_property }})
             .WithMany(p => p.{{ rel.collection_property }})
             .HasForeignKey(d => d.{{ rel.foreign_key_name }});
+        {{~end ~}}
         {{~ end ~}}
     }
 }

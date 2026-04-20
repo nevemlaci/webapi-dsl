@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetGenerator", "AspNetGe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_TestingProject", "WebAPI_DSL_TestingProject\WebAPI_DSL_TestingProject.csproj", "{8580BD18-3E17-4A42-A07C-3F442CF99285}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_UnitTest", "WebAPI_DSL_UnitTest\WebAPI_DSL_UnitTest.csproj", "{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{8580BD18-3E17-4A42-A07C-3F442CF99285}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8580BD18-3E17-4A42-A07C-3F442CF99285}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8580BD18-3E17-4A42-A07C-3F442CF99285}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
