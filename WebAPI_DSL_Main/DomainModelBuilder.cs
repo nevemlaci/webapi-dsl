@@ -62,13 +62,9 @@ public class DomainModelBuilder
     {
         if (!result.Success)
         {
-            syntaxLogger.Error(null, "Parsing failed with the following errors:");
             foreach (var diagnostic in result.Diagnostics)
                 syntaxLogger.Error(diagnostic.LineInfo, diagnostic.Message);
-            return;
         }
-
-        syntaxLogger.Info(null, "Parsing succeeded!");
     }
 
     private static RestDslLexer CreateLexer(string src, out LexerErrorListener lexerErrorListener)

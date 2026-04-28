@@ -25,13 +25,6 @@ public class Resolver(DomainModel m, AnnotationProcessor annotationProcessor)
             new AnnotationProcessingStage()
         ]);
 
-        var success = pipeline.Execute(context);
-
-        if (success)
-        {
-            logger.Info(null, "Resolving succesful!");
-        }
-
-        return success;
+        return pipeline.Execute(context);
     }
 }

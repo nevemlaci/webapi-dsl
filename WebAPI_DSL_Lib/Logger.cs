@@ -4,6 +4,7 @@ namespace WebAPI_DSL_Lib;
 
 public class Logger(string name)
 {
+    public bool Suppress { get; set; } = true;
     public enum LogLevels
     {
         Trace, Info, Warn, Error
@@ -28,6 +29,7 @@ public class Logger(string name)
     private readonly string Name = name;
     private void Write(ConsoleColor color, string prefix, LineInfo? info, string message, LogLevels level)
     {
+        if(Suppress) return;
         if(level < LogLevel) return;
         var colorBefore = Console.ForegroundColor;
         var infoAsString = info.HasValue ? info.Value.ToString() : "";

@@ -68,8 +68,11 @@ internal static class Program
 
         if (model is null)
         {
+            logger.Error("Parsing failed with errors. Terminating...");
             return;
         }
+        
+        logger.Info("Parsing succesful.");
 
         var resolver = new Resolver(model, BuiltinAnnotations.CreateDefaultAnnotationProcessor());
         
@@ -77,13 +80,19 @@ internal static class Program
 
         if (!successfulResolution)
         {
+            logger.Error(null, "Resolving failed. Terminating...");
             return;
         }
+        logger.Info(null, "Resolving succesful.");
         
         if (!Directory.Exists(outputDir))
         {
             Directory.CreateDirectory(outputDir);
-            logger.Info(null, $"Created output directory: {outputDir}");
+            logger.Trace(null, $"Created output directory: {outputDir}");
+        }
+        else
+        {
+            logger.Trace("Output directory already exists.");
         }
 
         ModelSelector modelSelector = new();
@@ -94,8 +103,10 @@ internal static class Program
         var generator = generatorSelector.GetGenerator(generatorName);
         if (generator is null)
         {
+            logger.Error($"Couldn't find generator named \"{generatorName}\"");
             return;
         }
+        logger.Trace($"Found generator {generatorName}");
         
         logger.Info(null, "Starting generation...");
         
