@@ -5,6 +5,7 @@ using WebAPI_DSL_Lib.Meta.Enums;
 using WebAPI_DSL_Lib.Meta.Expressions;
 using WebAPI_DSL_Lib.Meta.Types;
 using WebAPI_DSL_Lib.Model;
+using WebAPI_DSL_Lib.Resolving;
 
 namespace WebAPI_DSL_UnitTest;
 

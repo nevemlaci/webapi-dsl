@@ -2,6 +2,7 @@
 using WebAPI_DSL_Lib;
 using WebAPI_DSL_Lib.Meta.Annotations;
 using WebAPI_DSL_Lib.Model;
+using WebAPI_DSL_Lib.Resolving;
 
 namespace WebAPI_DSL_Main;
 
