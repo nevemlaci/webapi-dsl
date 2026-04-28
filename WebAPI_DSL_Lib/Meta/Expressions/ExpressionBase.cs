@@ -3,8 +3,8 @@ using WebAPI_DSL_Lib.Meta.Types;
 
 namespace WebAPI_DSL_Lib.Meta.Expressions;
 
-public interface IExpression
+public abstract class ExpressionBase : IExpression
 {
     public LineInfo LineInfo { get; set; }
-    public IType Type { get; }
+    public abstract IType Type { get; }
 }

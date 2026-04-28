@@ -10,6 +10,12 @@ public class Logger(string name)
         Trace, Info, Warn, Error
     }
 
+    /// <summary>
+    /// Set log level from a string. Tries to convert <see cref="str"/>
+    /// to <see cref="LogLevels"/>.
+    /// </summary>
+    /// <param name="str"></param>
+    /// <exception cref="ArgumentException">If <see cref="str"/> couldn't be converted to <see cref="LogLevels"/></exception>
     public static void SetLogLevelFromString(string str)
     {
         if (string.IsNullOrWhiteSpace(str))
@@ -24,7 +30,10 @@ public class Logger(string name)
 
         LogLevel = parsedLevel;
     }
-
+    
+    /// <summary>
+    /// Global log level for all loggers. Messages with a level lower than this value will not be logged.
+    /// </summary>
     public static LogLevels LogLevel { get; set; } = LogLevels.Trace;
     private readonly string Name = name;
     private void Write(ConsoleColor color, string prefix, LineInfo? info, string message, LogLevels level)

@@ -13,6 +13,27 @@ namespace WebAPI_DSL_Main.Visitor;
 public class VisitorImpl : RestDslBaseVisitor<object>
 {
 
+    public void Error(LineInfo lineInfo, string error)
+    {
+        logger.Error(lineInfo, error);
+        throw new VisitorException(error);
+    }
+    
+    public class VisitorException : Exception
+    {
+        public VisitorException()
+        {
+        }
+
+        public VisitorException(string message) : base(message)
+        {
+        }
+
+        public VisitorException(string message, Exception inner) : base(message, inner)
+        {
+        }
+    }
+    
     private readonly Logger logger = new("AST Visitor");
     
     private LineInfo GetLineInfo(ParserRuleContext ctx)
@@ -139,7 +160,9 @@ public class VisitorImpl : RestDslBaseVisitor<object>
 
     public override IExpression VisitExpression(RestDslParser.ExpressionContext context)
     {
-        return (IExpression)base.VisitExpression(context);
+        var expr = (IExpression)base.VisitExpression(context);
+        expr.LineInfo = GetLineInfo(context);
+        return expr;
     }
 
     public override object VisitAnnotation(RestDslParser.AnnotationContext context)
@@ -157,16 +180,13 @@ public class VisitorImpl : RestDslBaseVisitor<object>
                 namedArgPresent = true;
             }else if (namedArgPresent)
             {
-                logger.Error(GetLineInfo(param), $"Unnamed parameter not allowed after named " +
-                                                 $"parameter was already present!");
-                //TODO throw
+                Error(GetLineInfo(param), "Unnamed parameter not allowed after named parameter was already present!");
             }
             var paramname = explicitParamName ?? $"__arg{i+1}";
             var paramvalue = VisitExpression(param.value);
             if (!args.TryAdd(paramname, paramvalue))
             {
-                logger.Error(GetLineInfo(param), $"Duplicate parameter: {paramname}");
-                //TODO throw
+                Error(GetLineInfo(param), $"Duplicate parameter: {paramname}");
             }
         }
 
@@ -180,12 +200,38 @@ public class VisitorImpl : RestDslBaseVisitor<object>
 
     public override IntExpression VisitIntegerLiteral(RestDslParser.IntegerLiteralContext context)
     {
-        return new(){Value = int.Parse(context.value.Text)};
+        try
+        {
+            return new() { Value = int.Parse(context.value.Text) };
+        }
+        catch (FormatException e)
+        {
+            Error(GetLineInfo(context), $"`{context.value.Text}` could not be converted to int!: ${e.Message}");
+        }
+        catch (Exception e)
+        {
+            Error(GetLineInfo(context), e.Message);
+        }
+
+        return null!;
     }
 
     public override DoubleExpression VisitFloatLiteral(RestDslParser.FloatLiteralContext context)
     {
-        return new(){Value = double.Parse(context.value.Text)};
+        try
+        {
+            return new() { Value = double.Parse(context.value.Text) };
+        }
+        catch (FormatException e)
+        {
+            Error(GetLineInfo(context), $"`{context.value.Text}` could not be converted to double!: ${e.Message}");
+        }
+        catch (Exception e)
+        {
+            Error(GetLineInfo(context), e.Message);
+        }
+
+        return null!;
     }
 
     public override EnumExpression VisitEnumValue(RestDslParser.EnumValueContext context)

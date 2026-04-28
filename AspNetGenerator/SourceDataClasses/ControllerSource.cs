@@ -1,4 +1,4 @@
-﻿namespace AspNetGenerator;
+﻿namespace AspNetGenerator.SourceDataClasses;
 
 public class ControllerSource
 {
@@ -8,6 +8,7 @@ public class ControllerSource
     public string DtoClassName { get; set; }
     public string DbContextName { get; set; }
     public string DbSetName { get; set; }
+    // ReSharper disable once CollectionNeverQueried.Global
     public List<ActionSource> Actions { get; set; } = [];
     
     public ControllerSource(string entityName, string route, string dbContextName)

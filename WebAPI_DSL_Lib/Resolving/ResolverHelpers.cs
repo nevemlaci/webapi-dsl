@@ -123,7 +123,10 @@ internal static class ResolverHelpers
         {
             context.Logger.Trace("Resolving enum expression");
             enumExpression.EnumType = context.Model.Enums.FirstOrDefault(e => e.Name == enumExpression.RawEnumType);
-            // TODO Error here if enumExpression.EnumType is null
+            if (enumExpression.EnumType is null)
+            {
+                Error(context, expression.LineInfo, $"Couldn't resolve enum type {enumExpression.RawEnumType}");
+            }
         }
         context.Logger.Trace($"Resolved value: {expression}");
     }

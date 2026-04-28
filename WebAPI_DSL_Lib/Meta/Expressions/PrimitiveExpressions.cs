@@ -2,10 +2,10 @@
 
 namespace WebAPI_DSL_Lib.Meta.Expressions;
 
-public abstract class PrimitiveExpression<T>(IType type) : IExpression
+public abstract class PrimitiveExpression<T>(IType type) : ExpressionBase
 {
     public T Value { get; init; }
-    public IType Type { get; } = type;
+    public override IType Type { get; } = type;
 
     public override string ToString()
     {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using AspNetGenerator.SourceDataClasses;
 using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Meta.Enums;
 using WebAPI_DSL_Lib.Model;

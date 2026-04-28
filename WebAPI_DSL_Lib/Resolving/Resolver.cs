@@ -3,6 +3,8 @@ using WebAPI_DSL_Lib.Model;
 
 namespace WebAPI_DSL_Lib.Resolving;
 
+// TODO move resolving package to runtime as it isn't needed outside runtime
+
 /// <summary>
 /// The resolving stage is responsible for connecting the parts of the model
 /// based on the raw names stored inside the model object.

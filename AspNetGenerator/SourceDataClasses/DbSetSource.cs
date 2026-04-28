@@ -1,4 +1,4 @@
-﻿namespace AspNetGenerator;
+﻿namespace AspNetGenerator.SourceDataClasses;
 
 public class DbSetSource
 {
