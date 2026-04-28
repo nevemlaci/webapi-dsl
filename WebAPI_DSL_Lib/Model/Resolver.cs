@@ -9,18 +9,7 @@ namespace WebAPI_DSL_Lib.Model;
 
 public class ResolverError : Exception
 {
-    
-    public ResolverError()
-    {
-    }
-
-    public ResolverError(string message) : base(message)
-    {
-    }
-
-    public ResolverError(string message, Exception inner) : base(message, inner)
-    {
-    }
+    public ResolverError(string message) : base(message) {}
 }
 
 /// <summary>
