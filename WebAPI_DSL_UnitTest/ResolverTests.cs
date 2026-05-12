@@ -44,6 +44,7 @@ public class ResolverTests
         private static FieldDefinition CreateField(string name, string rawTypeName, LineInfo? lineInfo = null)
             => new() { Name = name, RawTypeName = rawTypeName, LineInfo = lineInfo ?? new LineInfo(1, 1) };
 
+        //TODO: remove reduntant test
         [Test]
         public void EnumValidationStage_PrimitiveTypeAllowed()
         {
@@ -54,6 +55,12 @@ public class ResolverTests
             Assert.Throws<ResolverError>(() => stage.Execute(_context));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define two enums with matching name
+        /// Expected:
+        /// Resolving stage throws a ResolverError
+        /// </summary>
         [Test]
         public void EnumValidationStage_DuplicateName_ThrowsResolverError()
         {
@@ -67,6 +74,12 @@ public class ResolverTests
             Assert.Throws<ResolverError>(() => stage.Execute(_context));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define enum with a name that matches a primitive type
+        /// Expected:
+        /// Resolving stage throws a ResolverError
+        /// </summary>
         [Test]
         public void EnumValidationStage_NameMatchesPrimitive_ThrowsResolverError()
         {
@@ -77,6 +90,12 @@ public class ResolverTests
             Assert.Throws<ResolverError>(() => stage.Execute(_context));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define entity with primitive type field
+        /// Expected:
+        /// Resolver resolves the type reference and the resolved type equals to IntType
+        /// </summary>
         [Test]
         public void EntityValidationStage_PrimitiveFieldTypeResolved()
         {
@@ -89,6 +108,12 @@ public class ResolverTests
             Assert.That(entity.Fields[0].Type, Is.EqualTo(PrimitiveTypes.IntType));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define entity with enum type field
+        /// Expected:
+        /// Resolver resolves the type reference and the resolved type equals to the enum type
+        /// </summary>
         [Test]
         public void EntityValidationStage_EnumFieldTypeResolved()
         {
@@ -104,6 +129,12 @@ public class ResolverTests
             Assert.That(entity.Fields[0].Type, Is.EqualTo(enumDef));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define entity with entity type field (relation)
+        /// Expected:
+        /// Resolver resolves the type reference and the resolved type equals to the entity type
+        /// </summary>
         [Test]
         public void EntityValidationStage_EntityFieldTypeResolved()
         {
@@ -117,8 +148,15 @@ public class ResolverTests
             stage.Execute(_context);
 
             Assert.That(entity.Fields[0].Type, Is.EqualTo(referencedEntity));
+            Assert.That(entity.Fields[0].IsRelation);
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define entity with unknown type field
+        /// Expected:
+        /// Resolving stage throws ResolverError
+        /// </summary>
         [Test]
         public void EntityValidationStage_UnknownType_ThrowsResolverError()
         {
@@ -127,9 +165,16 @@ public class ResolverTests
             _model.Entities.Add(entity);
 
             var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
+            //TODO: remove requirement to have this specific message as this can change
             Assert.That(ex.Message, Does.Contain("Unknown type: UnknownType"));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define two entities with duplicate name
+        /// Expected:
+        /// Resolving stage throws ResolverError
+        /// </summary>
         [Test]
         public void EntityValidationStage_DuplicateEntityName_ThrowsResolverError()
         {
@@ -141,9 +186,16 @@ public class ResolverTests
             _model.Entities.Add(entity2);
 
             var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
+            //TODO: remove requirement to have this specific message as this can change
             Assert.That(ex.Message, Does.Contain("Entity name DuplicateEntity is not unique!"));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define an entity that matches an enum name
+        /// Expected:
+        /// Resolving stage throws ResolverError
+        /// </summary>
         [Test]
         public void EntityValidationStage_NameMatchesEnum_ThrowsResolverError()
         {
@@ -155,9 +207,16 @@ public class ResolverTests
             _model.Entities.Add(entity);
 
             var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
+            //TODO: remove requirement to have this specific message as this can change
             Assert.That(ex.Message, Does.Contain("Entity name SameName is not unique!"));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define an entity with fieds with the same name
+        /// Expected:
+        /// Resolving stage throws ResolverError
+        /// </summary>
         [Test]
         public void EntityValidationStage_DuplicateFieldName_ThrowsResolverError()
         {
@@ -169,9 +228,16 @@ public class ResolverTests
             _model.Entities.Add(entity);
 
             var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
+            //TODO: remove requirement to have this specific message as this can change
             Assert.That(ex.Message, Does.Contain("Field name DuplicateField is not unique in entity TestEntity!"));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define a field annotation with an enum expression as an argument
+        /// Expected:
+        /// Type gets resolved to correct enum type
+        /// </summary>
         [Test]
         public void ExpressionResolvingStage_ResolvesEnumExpressionArgumentsOnFieldAnnotations()
         {
@@ -191,6 +257,12 @@ public class ResolverTests
             Assert.That(enumExpr.EnumType, Is.EqualTo(enumDef));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define an entity annotation with an enum expression as an argument
+        /// Expected:
+        /// Type gets resolved to correct enum type
+        /// </summary>
         [Test]
         public void ExpressionResolvingStage_ResolvesEnumExpressionArgumentsOnEntityAnnotations()
         {
@@ -208,6 +280,12 @@ public class ResolverTests
             Assert.That(enumExpr.EnumType, Is.EqualTo(enumDef));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define two annotations on a field 
+        /// Expected:
+        /// All annotations get resolved correctly
+        /// </summary>
         [Test]
         public void ExpressionResolvingStage_ResolvesAllAnnotationArguments()
         {
@@ -233,20 +311,24 @@ public class ResolverTests
             Assert.That(enumExpr2.EnumType, Is.EqualTo(enumDef2));
         }
 
+        /// <summary>
+        /// Scenario
+        /// Define an annotation with an unknown enum type as parameter
+        /// Expected:
+        /// Resolving stage throws ResolverError
+        /// </summary>
         [Test]
-        public void ExpressionResolvingStage_UnknownEnumInExpression_LeavesEnumTypeNull()
+        public void ExpressionResolvingStage_UnknownEnumInExpression_ThrowsResolverError()
         {
-            var stage = new AnnotationProcessingStage();
+            var stage = new EntityValidationStage();
             var enumExpr = new EnumExpression { RawEnumType = "NonExistentEnum", EnumValue = "Val1" };
             var field = CreateField("TestField", "int");
             field.AnnotationsRaw.Add(("TestAnnotation", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr } })));
 
             var entity = CreateEntity("TestEntity", field);
             _model.Entities.Add(entity);
-
-            stage.Execute(_context);
-
-            Assert.That(enumExpr.EnumType, Is.Null);
+            
+            Assert.Throws<ResolverError>(() => stage.Execute(_context));
         }
     }
 }
