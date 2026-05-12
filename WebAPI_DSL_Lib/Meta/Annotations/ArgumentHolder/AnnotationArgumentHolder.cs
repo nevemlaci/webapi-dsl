@@ -71,7 +71,9 @@ public class AnnotationArgumentHolder : Dictionary<string, IExpression>
                 case ArgumentLookupResult.IncorrectType:
                     throw new IncorrectArgumentTypeException(arg.Type.Name, arg.Name, arg.Position);
                 case ArgumentLookupResult.NotFound:
-                    throw new ArgumentNotFoundException(arg.Name, arg.Position);
+                    if(arg.Required) throw new ArgumentNotFoundException(arg.Name, arg.Position);
+                    result[arg.Name] = null;
+                    break;
                 case ArgumentLookupResult.Success:
                     result[arg.Name] = value;
                     break;
