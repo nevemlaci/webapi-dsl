@@ -182,7 +182,7 @@ public class AnnotationArgumentHolderTests
     /// GetArgs returns only provided arguments
     /// </summary>
     [Test]
-    public void GetArgs_OptionalArguments_OnlyProvidedReturned()
+    public void GetArgs_OptionalArguments_ReturnsOptionalAsNull()
     {
         var intExpr = new IntExpression { Value = 42 };
         var holder = new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "required", intExpr } });
@@ -193,8 +193,9 @@ public class AnnotationArgumentHolderTests
 
         var result = holder.GetArgs(layout);
 
-        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result.Count, Is.EqualTo(2));
         Assert.That(result["required"], Is.EqualTo(intExpr));
+        Assert.That(result["optional"], Is.Null);
     }
 
     /// <summary>
