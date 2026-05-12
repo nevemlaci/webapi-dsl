@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_Main", "WebAPI_DSL_Main\WebAPI_DSL_Main.csproj", "{7C32ABDC-FDF8-4879-BAF7-49EF6A07CA39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_Runtime", "WebAPI_DSL_Runtime\WebAPI_DSL_Runtime.csproj", "{7C32ABDC-FDF8-4879-BAF7-49EF6A07CA39}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_Lib", "WebAPI_DSL_Lib\WebAPI_DSL_Lib.csproj", "{7D8050B6-9FE7-4A03-B5C7-1CA082F21BE8}"
 EndProject

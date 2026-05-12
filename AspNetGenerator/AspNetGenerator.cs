@@ -1,14 +1,12 @@
-﻿using System.Diagnostics;
-using Scriban;
-using Scriban.Runtime;
+﻿using Scriban;
 using WebAPI_DSL_GeneratorsCommon;
-using WebAPI_DSL_Lib;
 using WebAPI_DSL_Lib.Generator;
-using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Model;
+using WebAPI_DSL_Lib.Plugins.Attributes;
 
 namespace AspNetGenerator;
 
+[Generator("aspnet")]
 public class AspNetGenerator : SourceGenerator<IAspNetModel>
 {
     private IAspNetModel aspNetModel;
@@ -27,7 +25,7 @@ public class AspNetGenerator : SourceGenerator<IAspNetModel>
         {
             throw new ArgumentException("Invalid model type!");
         }
-        templateDir = Path.Join(AppContext.BaseDirectory, "Templates", "AspDotNet");
+        templateDir = Path.Join(WorkingDirectory, "Templates");
         baseOutputDir = Path.Join(outputDir, "Generated");
         GenerateEnums();
         GenerateDbContext();

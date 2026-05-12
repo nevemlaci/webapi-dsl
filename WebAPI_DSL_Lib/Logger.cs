@@ -4,7 +4,7 @@ namespace WebAPI_DSL_Lib;
 
 public class Logger(string name)
 {
-    public bool Suppress { get; set; } = true;
+    public bool Suppress { get; set; } = false;
     public enum LogLevels
     {
         Trace, Info, Warn, Error

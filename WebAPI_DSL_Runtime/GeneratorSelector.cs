@@ -10,10 +10,7 @@ public class GeneratorSelector
     /// <summary>
     /// Known generator factories.
     /// </summary>
-    private readonly Dictionary<string, Func<ISourceGenerator>> _generators = new()
-    {
-        { "aspnet", () => new AspNetGenerator.AspNetGenerator() },
-    };
+    private readonly Dictionary<string, Func<ISourceGenerator>> _generators = new();
 
     /// <summary>
     /// Registers or replaces a generator factory under the specified name.
