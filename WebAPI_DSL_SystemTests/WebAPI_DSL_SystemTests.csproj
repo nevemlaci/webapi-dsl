@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentAssertions" Version="8.10.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.15" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+      <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="18.5.1" />
+      <PackageReference Include="NUnit" Version="4.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\WebAPI_DSL_ExampleAPI\WebAPI_DSL_ExampleAPI.csproj" />
+    </ItemGroup>
+
+</Project>
