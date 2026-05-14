@@ -2,7 +2,7 @@
 using ExampleAPI.Generated.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace TestingGenerated;
+namespace Example;
 
 /**
  * Helper class for adding example data to in memor SQLite db
@@ -25,6 +25,7 @@ public static class DbInitializer
             Username = "BobCoder",
             AccountAge = 2,
         };
+        
 
         
         var posts = new List<Post>
@@ -51,6 +52,8 @@ public static class DbInitializer
 
         // 5. Save to Database
         await context.Users.AddRangeAsync(user1, user2);
+        await context.SaveChangesAsync();
+        
         await context.Posts.AddRangeAsync(posts);
         await context.SaveChangesAsync();
         

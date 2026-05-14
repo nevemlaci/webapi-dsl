@@ -8,9 +8,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneratorsCommon", "Generat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetGenerator", "AspNetGenerator\AspNetGenerator.csproj", "{0C0106DC-18C0-424F-B482-DBE871C48DE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_TestingProject", "WebAPI_DSL_TestingProject\WebAPI_DSL_TestingProject.csproj", "{8580BD18-3E17-4A42-A07C-3F442CF99285}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_ExampleAPI", "WebAPI_DSL_ExampleAPI\WebAPI_DSL_ExampleAPI.csproj", "{8580BD18-3E17-4A42-A07C-3F442CF99285}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_UnitTest", "WebAPI_DSL_UnitTest\WebAPI_DSL_UnitTest.csproj", "{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI_DSL_SystemTests", "WebAPI_DSL_SystemTests\WebAPI_DSL_SystemTests.csproj", "{1E031B21-2AD7-424C-903B-32ECF0E4DD0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +44,9 @@ Global
 		{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA272901-BA5E-42D9-AD1F-1EAC00E2754F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E031B21-2AD7-424C-903B-32ECF0E4DD0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E031B21-2AD7-424C-903B-32ECF0E4DD0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E031B21-2AD7-424C-903B-32ECF0E4DD0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E031B21-2AD7-424C-903B-32ECF0E4DD0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
