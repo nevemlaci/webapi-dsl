@@ -1,4 +1,5 @@
-﻿using ExampleAPI.Generated.DbContext;
+﻿using Example;
+using ExampleAPI.Generated.DbContext;
 using Mapster;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Data.Sqlite;
@@ -6,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace TestingGenerated;
+namespace WebAPI_DSL_TestingProject;
 
-class Program
+public class ExampleApi
 {
     static async Task Main(string[] args)
     {
@@ -24,7 +25,7 @@ class Program
         
         builder.Services.AddControllers();
 
-        TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
+        TypeAdapterConfig.GlobalSettings.Scan(typeof(ExampleApi).Assembly);
         
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
