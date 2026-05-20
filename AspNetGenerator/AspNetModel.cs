@@ -3,9 +3,11 @@ using AspNetGenerator.SourceDataClasses;
 using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Meta.Enums;
 using WebAPI_DSL_Lib.Model;
+using WebAPI_DSL_Lib.Plugins.Attributes;
 
 namespace AspNetGenerator;
 
+[Model("aspnet")]
 public class AspNetModel : IAspNetModel
 {
 

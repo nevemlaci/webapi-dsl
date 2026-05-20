@@ -31,4 +31,21 @@
       </None>
     </ItemGroup>
 
+    <Target Name="CopyFilesToPluginDirectory" AfterTargets="PostBuildEvent">
+        <PropertyGroup>
+            <PluginDestination>..\WebAPI_DSL_Runtime\plugins\aspnet\</PluginDestination>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <PluginFiles Include="$(TargetDir)$(TargetName).dll;$(TargetDir)$(TargetName).pdb;$(TargetDir)$(TargetName).deps.json" />        
+        </ItemGroup>
+
+        <ItemGroup>
+            <TemplateFiles Include=".\Templates\**\*.*" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+        <Copy SourceFiles="@(TemplateFiles)" DestinationFolder="$(PluginDestination)\Templates\%(RecursiveDir)" />
+    </Target>
+
 </Project>

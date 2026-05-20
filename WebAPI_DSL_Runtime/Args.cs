@@ -17,6 +17,9 @@ public class Args
     public string? Model { get; set; }
     
     [Option('l', "loglevel", Required = false)]
-    public string? LogLevel { get; set; } 
+    public string? LogLevel { get; set; }
+
+    [Option('p', "pluginDir", Required = false)]
+    public string PluginDir { get; set; } = Path.Combine(AppContext.BaseDirectory, "plugins");
 }
 

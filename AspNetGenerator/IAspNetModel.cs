@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using AspNetGenerator.SourceDataClasses;
+using WebAPI_DSL_Lib.Plugins;
 
 namespace AspNetGenerator;
 

@@ -16,7 +16,7 @@ internal static class Program
         var outputDir = AppContext.BaseDirectory;
         var generatorName = string.Empty;
         var modelName = "";
-        Parser.Default.ParseArguments<Args>(args)
+        var a = Parser.Default.ParseArguments<Args>(args)
             .WithParsed(options =>
                 {
                     if (options.InputFile != null)
@@ -52,6 +52,16 @@ internal static class Program
                     modelName = options.Model;
                 }
             );
+
+        var modelSelector = new ModelSelector();
+        var generatorSelector = new GeneratorSelector();
+        
+        var pluginLoader = new PluginLoader();
+        pluginLoader.LoadPlugins(a.Value.PluginDir);
+        
+        pluginLoader.FillModelSelector(modelSelector);
+        pluginLoader.FillGeneratorSelector(generatorSelector);
+        
         string src;
         try
         {
@@ -95,11 +105,10 @@ internal static class Program
             logger.Trace("Output directory already exists.");
         }
 
-        ModelSelector modelSelector = new();
+        
 
         var genModel = modelSelector.GetModel(modelName)?.Invoke(model);
         
-        GeneratorSelector generatorSelector = new();
         var generator = generatorSelector.GetGenerator(generatorName);
         if (generator is null)
         {

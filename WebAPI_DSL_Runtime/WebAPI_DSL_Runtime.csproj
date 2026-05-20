@@ -5,6 +5,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>WebAPI_DSL_Main</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -51,30 +52,13 @@
       </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Include="..\AspNetGenerator\Templates\AspDotNet\Controller.scriban-cs">
-        <Link>Templates\AspDotNet\Controller.scriban-cs</Link>
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\AspNetGenerator\Templates\AspDotNet\DbContext.scriban-cs">
-        <Link>Templates\AspDotNet\DbContext.scriban-cs</Link>
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\AspNetGenerator\Templates\AspDotNet\Dto.scriban-cs">
-        <Link>Templates\AspDotNet\Dto.scriban-cs</Link>
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\AspNetGenerator\Templates\AspDotNet\Entity.scriban-cs">
-        <Link>Templates\AspDotNet\Entity.scriban-cs</Link>
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\AspNetGenerator\Templates\AspDotNet\Enums.scriban-cs">
-        <Link>Templates\AspDotNet\Enums.scriban-cs</Link>
-      </Content>
-      <Content Include="..\AspNetGenerator\Templates\AspDotNet\MapsterConfig.scriban-cs">
-        <Link>Templates\AspDotNet\MapsterConfig.scriban-cs</Link>
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
-    
+
+    <Target Name="CopyPlugins" AfterTargets="Build">
+        <ItemGroup>
+            <PluginFiles Include=".\plugins\**\*.*" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(PluginFiles)"
+              DestinationFolder="$(TargetDir)plugins\%(RecursiveDir)" />
+    </Target>
 </Project>

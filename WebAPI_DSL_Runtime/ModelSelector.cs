@@ -7,11 +7,8 @@ namespace WebAPI_DSL_Main;
 public class ModelSelector
 {
     private Logger logger = new Logger("ModelSelector");
-    
-    private readonly Dictionary<string, Func<DomainModel, object>> _models = new()
-    {
-        { "aspnet", (m) => new AspNetModel(m) },
-    };
+
+    private readonly Dictionary<string, Func<DomainModel, object>> _models = new();
 
     public void RegisterModel(string name, Func<DomainModel, object> factory)
     {
