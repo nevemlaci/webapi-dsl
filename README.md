@@ -60,9 +60,11 @@ An example of using the generators in a project is shown in `WebAPI_DSL_TestingP
 
 To run the test project with codegen:
 ```bash
-dotnet run --project ./WebAPI_DSL_Main/WebAPI_DSL_Main.csproj -- -i "./WebAPI_DSL_TestingProject/test.restapi" -o "./WebAPI_DSL_TestingProject" -g "aspnet"
-dotnet run --project ./WebAPI_DSL_TestingProject/WebAPI_DSL_TestingProject.csproj
+dotnet run --project .\WebAPI_DSL_Runtime\WebAPI_DSL_Runtime.csproj -- -i .\WebAPI_DSL_ExampleAPI\test.restapi -o .\WebAPI_DSL_ExampleAPI -g "aspnet" -m "aspnet" -l"Trace"
+dotnet run --project ./WebAPI_DSL_ExampleAPI/WebAPI_DSL_ExampleAPI.csproj
 ```
+
+Make sure the correct `using` directives are included in the source files.
 
 ## Tests
 
@@ -71,7 +73,16 @@ dotnet run --project ./WebAPI_DSL_TestingProject/WebAPI_DSL_TestingProject.cspro
 Unit tests are located in the `./WebAPI_DSL_UnitTest`. To run the tests, use the following command:
 
 ```bash
-dotnet test --project ./WebAPI_DSL_UnitTest/WebAPI_DSL_UnitTest.csproj
+dotnet test ./WebAPI_DSL_UnitTest/WebAPI_DSL_UnitTest.csproj
 ```
 
-Make sure the correct `using` directives are included in the source files.
+### System tests
+
+Before running system tests, make sure to run the tool to codegen into the example project!
+
+```bash
+dotnet run --project .\WebAPI_DSL_Runtime\WebAPI_DSL_Runtime.csproj -- -i .\WebAPI_DSL_ExampleAPI\test.restapi -o .\WebAPI_DSL_ExamplaAPI -g "aspnet" -m "aspnet" -l "Trace"
+dotnet test ./WebAPI_DSL_SystemTests/WebAPI_DSL_SystemTests.csproj
+```
+
+
