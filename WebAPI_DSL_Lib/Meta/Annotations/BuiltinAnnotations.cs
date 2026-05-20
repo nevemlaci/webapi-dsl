@@ -12,7 +12,7 @@ public static class BuiltinAnnotations
 
     public static AnnotationProcessor CreateDefaultAnnotationProcessor()
     {
-        var processor = new AnnotationProcessor();
+        var processor = new AnnotationProcessor("Built-in Annotation processor");
         processor.RegisterAnnotations(
             [
                 NoDefaultEndpoint,

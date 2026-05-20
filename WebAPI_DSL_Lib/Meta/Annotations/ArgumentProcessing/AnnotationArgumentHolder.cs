@@ -1,7 +1,7 @@
 ﻿using WebAPI_DSL_Lib.Meta.Expressions;
 using WebAPI_DSL_Lib.Meta.Types;
 
-namespace WebAPI_DSL_Lib.Meta.Annotations.ArgumentHolder;
+namespace WebAPI_DSL_Lib.Meta.Annotations.ArgumentProcessing;
 
 public class AnnotationArgumentHolder : Dictionary<string, IExpression>
 {

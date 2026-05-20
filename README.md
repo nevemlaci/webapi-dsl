@@ -64,4 +64,14 @@ dotnet run --project ./WebAPI_DSL_Main/WebAPI_DSL_Main.csproj -- -i "./WebAPI_DS
 dotnet run --project ./WebAPI_DSL_TestingProject/WebAPI_DSL_TestingProject.csproj
 ```
 
+## Tests
+
+### Unit tests
+
+Unit tests are located in the `./WebAPI_DSL_UnitTest`. To run the tests, use the following command:
+
+```bash
+dotnet test --project ./WebAPI_DSL_UnitTest/WebAPI_DSL_UnitTest.csproj
+```
+
 Make sure the correct `using` directives are included in the source files.

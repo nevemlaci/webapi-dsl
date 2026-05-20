@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using WebAPI_DSL_Lib.Meta.Types;
 
-namespace WebAPI_DSL_Lib.Meta.Annotations;
+namespace WebAPI_DSL_Lib.Meta.Annotations.ArgumentProcessing;
 
 public class ArgumentLayout
 {

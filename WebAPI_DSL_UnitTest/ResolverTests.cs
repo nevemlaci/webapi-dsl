@@ -2,7 +2,7 @@
 using WebAPI_DSL_Lib.Info;
 using WebAPI_DSL_Lib.Meta;
 using WebAPI_DSL_Lib.Meta.Annotations;
-using WebAPI_DSL_Lib.Meta.Annotations.ArgumentHolder;
+using WebAPI_DSL_Lib.Meta.Annotations.ArgumentProcessing;
 using WebAPI_DSL_Lib.Meta.Enums;
 using WebAPI_DSL_Lib.Meta.Expressions;
 using WebAPI_DSL_Lib.Meta.Types;
@@ -13,322 +13,319 @@ namespace WebAPI_DSL_UnitTest;
 
 public class ResolverTests
 {
-    public class Tests
+    private DomainModel _model;
+    private AnnotationProcessor _annotationProcessor;
+    private Logger _logger;
+    private ResolverContext _context;
+
+    [SetUp]
+    public void Setup()
     {
-        private DomainModel _model;
-        private AnnotationProcessor _annotationProcessor;
-        private Logger _logger;
-        private ResolverContext _context;
+        _model = new DomainModel();
+        _annotationProcessor = new AnnotationProcessor();
+        _logger = new Logger("ResolverTests");
+        _logger.Suppress = true;
+        _context = new ResolverContext(_model, _annotationProcessor, _logger);
+    }
 
-        [SetUp]
-        public void Setup()
+    private static EntityDefinition CreateEntity(string name, params FieldDefinition[] fields)
+    {
+        var entity = new EntityDefinition { Name = name };
+        foreach (var field in fields)
         {
-            _model = new DomainModel();
-            _annotationProcessor = new AnnotationProcessor();
-            _logger = new Logger("ResolverTests");
-            _logger.Suppress = true;
-            _context = new ResolverContext(_model, _annotationProcessor, _logger);
+            entity.Fields.Add(field);
         }
 
-        private static EntityDefinition CreateEntity(string name, params FieldDefinition[] fields)
-        {
-            var entity = new EntityDefinition { Name = name };
-            foreach (var field in fields)
-            {
-                entity.Fields.Add(field);
-            }
+        return entity;
+    }
 
-            return entity;
-        }
+    private static FieldDefinition CreateField(string name, string rawTypeName, LineInfo? lineInfo = null)
+        => new() { Name = name, RawTypeName = rawTypeName, LineInfo = lineInfo ?? new LineInfo(1, 1) };
 
-        private static FieldDefinition CreateField(string name, string rawTypeName, LineInfo? lineInfo = null)
-            => new() { Name = name, RawTypeName = rawTypeName, LineInfo = lineInfo ?? new LineInfo(1, 1) };
+    //TODO: remove reduntant test
+    [Test]
+    public void EnumValidationStage_PrimitiveTypeAllowed()
+    {
+        var stage = new EnumValidationStage();
+        var enumDef = new EnumDefinition { Name = "int", Values = ["Val1", "Val2"] };
+        _model.UserDefinedEnums.Add(enumDef);
 
-        //TODO: remove reduntant test
-        [Test]
-        public void EnumValidationStage_PrimitiveTypeAllowed()
-        {
-            var stage = new EnumValidationStage();
-            var enumDef = new EnumDefinition { Name = "int", Values = ["Val1", "Val2"] };
-            _model.UserDefinedEnums.Add(enumDef);
+        Assert.Throws<ResolverError>(() => stage.Execute(_context));
+    }
 
-            Assert.Throws<ResolverError>(() => stage.Execute(_context));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define two enums with matching name
+    /// Expected:
+    /// Resolving stage throws a ResolverError
+    /// </summary>
+    [Test]
+    public void EnumValidationStage_DuplicateName_ThrowsResolverError()
+    {
+        var stage = new EnumValidationStage();
+        var enumDef1 = new EnumDefinition { Name = "DuplicateEnum", LineInfo = new LineInfo(1, 1) };
+        var enumDef2 = new EnumDefinition { Name = "DuplicateEnum", LineInfo = new LineInfo(2, 1) };
 
-        /// <summary>
-        /// Scenario
-        /// Define two enums with matching name
-        /// Expected:
-        /// Resolving stage throws a ResolverError
-        /// </summary>
-        [Test]
-        public void EnumValidationStage_DuplicateName_ThrowsResolverError()
-        {
-            var stage = new EnumValidationStage();
-            var enumDef1 = new EnumDefinition { Name = "DuplicateEnum", LineInfo = new LineInfo(1, 1) };
-            var enumDef2 = new EnumDefinition { Name = "DuplicateEnum", LineInfo = new LineInfo(2, 1) };
+        _model.UserDefinedEnums.Add(enumDef1);
+        _model.UserDefinedEnums.Add(enumDef2);
 
-            _model.UserDefinedEnums.Add(enumDef1);
-            _model.UserDefinedEnums.Add(enumDef2);
+        Assert.Throws<ResolverError>(() => stage.Execute(_context));
+    }
 
-            Assert.Throws<ResolverError>(() => stage.Execute(_context));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define enum with a name that matches a primitive type
+    /// Expected:
+    /// Resolving stage throws a ResolverError
+    /// </summary>
+    [Test]
+    public void EnumValidationStage_NameMatchesPrimitive_ThrowsResolverError()
+    {
+        var stage = new EnumValidationStage();
+        var enumDef = new EnumDefinition { Name = "int", LineInfo = new LineInfo(1, 1) };
+        _model.UserDefinedEnums.Add(enumDef);
 
-        /// <summary>
-        /// Scenario
-        /// Define enum with a name that matches a primitive type
-        /// Expected:
-        /// Resolving stage throws a ResolverError
-        /// </summary>
-        [Test]
-        public void EnumValidationStage_NameMatchesPrimitive_ThrowsResolverError()
-        {
-            var stage = new EnumValidationStage();
-            var enumDef = new EnumDefinition { Name = "int", LineInfo = new LineInfo(1, 1) };
-            _model.UserDefinedEnums.Add(enumDef);
+        Assert.Throws<ResolverError>(() => stage.Execute(_context));
+    }
 
-            Assert.Throws<ResolverError>(() => stage.Execute(_context));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define entity with primitive type field
+    /// Expected:
+    /// Resolver resolves the type reference and the resolved type equals to IntType
+    /// </summary>
+    [Test]
+    public void EntityValidationStage_PrimitiveFieldTypeResolved()
+    {
+        var stage = new EntityValidationStage();
+        var entity = CreateEntity("TestEntity", CreateField("TestField", "int"));
+        _model.Entities.Add(entity);
 
-        /// <summary>
-        /// Scenario
-        /// Define entity with primitive type field
-        /// Expected:
-        /// Resolver resolves the type reference and the resolved type equals to IntType
-        /// </summary>
-        [Test]
-        public void EntityValidationStage_PrimitiveFieldTypeResolved()
-        {
-            var stage = new EntityValidationStage();
-            var entity = CreateEntity("TestEntity", CreateField("TestField", "int"));
-            _model.Entities.Add(entity);
+        stage.Execute(_context);
 
-            stage.Execute(_context);
+        Assert.That(entity.Fields[0].Type, Is.EqualTo(PrimitiveTypes.IntType));
+    }
 
-            Assert.That(entity.Fields[0].Type, Is.EqualTo(PrimitiveTypes.IntType));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define entity with enum type field
+    /// Expected:
+    /// Resolver resolves the type reference and the resolved type equals to the enum type
+    /// </summary>
+    [Test]
+    public void EntityValidationStage_EnumFieldTypeResolved()
+    {
+        var stage = new EntityValidationStage();
+        var enumDef = new EnumDefinition { Name = "TestEnum", Values = ["Val1", "Val2"] };
+        _model.UserDefinedEnums.Add(enumDef);
 
-        /// <summary>
-        /// Scenario
-        /// Define entity with enum type field
-        /// Expected:
-        /// Resolver resolves the type reference and the resolved type equals to the enum type
-        /// </summary>
-        [Test]
-        public void EntityValidationStage_EnumFieldTypeResolved()
-        {
-            var stage = new EntityValidationStage();
-            var enumDef = new EnumDefinition { Name = "TestEnum", Values = ["Val1", "Val2"] };
-            _model.UserDefinedEnums.Add(enumDef);
+        var entity = CreateEntity("TestEntity", CreateField("TestField", "TestEnum"));
+        _model.Entities.Add(entity);
 
-            var entity = CreateEntity("TestEntity", CreateField("TestField", "TestEnum"));
-            _model.Entities.Add(entity);
+        stage.Execute(_context);
 
-            stage.Execute(_context);
+        Assert.That(entity.Fields[0].Type, Is.EqualTo(enumDef));
+    }
 
-            Assert.That(entity.Fields[0].Type, Is.EqualTo(enumDef));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define entity with entity type field (relation)
+    /// Expected:
+    /// Resolver resolves the type reference and the resolved type equals to the entity type
+    /// </summary>
+    [Test]
+    public void EntityValidationStage_EntityFieldTypeResolved()
+    {
+        var stage = new EntityValidationStage();
+        var referencedEntity = new EntityDefinition { Name = "RefEntity" };
+        _model.Entities.Add(referencedEntity);
 
-        /// <summary>
-        /// Scenario
-        /// Define entity with entity type field (relation)
-        /// Expected:
-        /// Resolver resolves the type reference and the resolved type equals to the entity type
-        /// </summary>
-        [Test]
-        public void EntityValidationStage_EntityFieldTypeResolved()
-        {
-            var stage = new EntityValidationStage();
-            var referencedEntity = new EntityDefinition { Name = "RefEntity" };
-            _model.Entities.Add(referencedEntity);
+        var entity = CreateEntity("TestEntity", CreateField("TestField", "RefEntity"));
+        _model.Entities.Add(entity);
 
-            var entity = CreateEntity("TestEntity", CreateField("TestField", "RefEntity"));
-            _model.Entities.Add(entity);
+        stage.Execute(_context);
 
-            stage.Execute(_context);
+        Assert.That(entity.Fields[0].Type, Is.EqualTo(referencedEntity));
+        Assert.That(entity.Fields[0].IsRelation);
+    }
 
-            Assert.That(entity.Fields[0].Type, Is.EqualTo(referencedEntity));
-            Assert.That(entity.Fields[0].IsRelation);
-        }
+    /// <summary>
+    /// Scenario
+    /// Define entity with unknown type field
+    /// Expected:
+    /// Resolving stage throws ResolverError
+    /// </summary>
+    [Test]
+    public void EntityValidationStage_UnknownType_ThrowsResolverError()
+    {
+        var stage = new EntityValidationStage();
+        var entity = CreateEntity("TestEntity", CreateField("TestField", "UnknownType", new LineInfo(1, 1)));
+        _model.Entities.Add(entity);
 
-        /// <summary>
-        /// Scenario
-        /// Define entity with unknown type field
-        /// Expected:
-        /// Resolving stage throws ResolverError
-        /// </summary>
-        [Test]
-        public void EntityValidationStage_UnknownType_ThrowsResolverError()
-        {
-            var stage = new EntityValidationStage();
-            var entity = CreateEntity("TestEntity", CreateField("TestField", "UnknownType", new LineInfo(1, 1)));
-            _model.Entities.Add(entity);
+        var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
+        //TODO: remove requirement to have this specific message as this can change
+        Assert.That(ex.Message, Does.Contain("Unknown type: UnknownType"));
+    }
 
-            var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
-            //TODO: remove requirement to have this specific message as this can change
-            Assert.That(ex.Message, Does.Contain("Unknown type: UnknownType"));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define two entities with duplicate name
+    /// Expected:
+    /// Resolving stage throws ResolverError
+    /// </summary>
+    [Test]
+    public void EntityValidationStage_DuplicateEntityName_ThrowsResolverError()
+    {
+        var stage = new EntityValidationStage();
+        var entity1 = new EntityDefinition { Name = "DuplicateEntity", LineInfo = new LineInfo(1, 1) };
+        var entity2 = new EntityDefinition { Name = "DuplicateEntity", LineInfo = new LineInfo(2, 1) };
 
-        /// <summary>
-        /// Scenario
-        /// Define two entities with duplicate name
-        /// Expected:
-        /// Resolving stage throws ResolverError
-        /// </summary>
-        [Test]
-        public void EntityValidationStage_DuplicateEntityName_ThrowsResolverError()
-        {
-            var stage = new EntityValidationStage();
-            var entity1 = new EntityDefinition { Name = "DuplicateEntity", LineInfo = new LineInfo(1, 1) };
-            var entity2 = new EntityDefinition { Name = "DuplicateEntity", LineInfo = new LineInfo(2, 1) };
+        _model.Entities.Add(entity1);
+        _model.Entities.Add(entity2);
 
-            _model.Entities.Add(entity1);
-            _model.Entities.Add(entity2);
+        var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
+        //TODO: remove requirement to have this specific message as this can change
+        Assert.That(ex.Message, Does.Contain("Entity name DuplicateEntity is not unique!"));
+    }
 
-            var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
-            //TODO: remove requirement to have this specific message as this can change
-            Assert.That(ex.Message, Does.Contain("Entity name DuplicateEntity is not unique!"));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define an entity that matches an enum name
+    /// Expected:
+    /// Resolving stage throws ResolverError
+    /// </summary>
+    [Test]
+    public void EntityValidationStage_NameMatchesEnum_ThrowsResolverError()
+    {
+        var stage = new EntityValidationStage();
+        var enumDef = new EnumDefinition { Name = "SameName" };
+        _model.UserDefinedEnums.Add(enumDef);
 
-        /// <summary>
-        /// Scenario
-        /// Define an entity that matches an enum name
-        /// Expected:
-        /// Resolving stage throws ResolverError
-        /// </summary>
-        [Test]
-        public void EntityValidationStage_NameMatchesEnum_ThrowsResolverError()
-        {
-            var stage = new EntityValidationStage();
-            var enumDef = new EnumDefinition { Name = "SameName" };
-            _model.UserDefinedEnums.Add(enumDef);
+        var entity = new EntityDefinition { Name = "SameName", LineInfo = new LineInfo(1, 1) };
+        _model.Entities.Add(entity);
 
-            var entity = new EntityDefinition { Name = "SameName", LineInfo = new LineInfo(1, 1) };
-            _model.Entities.Add(entity);
+        var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
+        //TODO: remove requirement to have this specific message as this can change
+        Assert.That(ex.Message, Does.Contain("Entity name SameName is not unique!"));
+    }
 
-            var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
-            //TODO: remove requirement to have this specific message as this can change
-            Assert.That(ex.Message, Does.Contain("Entity name SameName is not unique!"));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define an entity with fieds with the same name
+    /// Expected:
+    /// Resolving stage throws ResolverError
+    /// </summary>
+    [Test]
+    public void EntityValidationStage_DuplicateFieldName_ThrowsResolverError()
+    {
+        var stage = new EntityValidationStage();
+        var entity = CreateEntity(
+            "TestEntity",
+            CreateField("DuplicateField", "int", new LineInfo(1, 1)),
+            CreateField("DuplicateField", "int", new LineInfo(2, 1)));
+        _model.Entities.Add(entity);
 
-        /// <summary>
-        /// Scenario
-        /// Define an entity with fieds with the same name
-        /// Expected:
-        /// Resolving stage throws ResolverError
-        /// </summary>
-        [Test]
-        public void EntityValidationStage_DuplicateFieldName_ThrowsResolverError()
-        {
-            var stage = new EntityValidationStage();
-            var entity = CreateEntity(
-                "TestEntity",
-                CreateField("DuplicateField", "int", new LineInfo(1, 1)),
-                CreateField("DuplicateField", "int", new LineInfo(2, 1)));
-            _model.Entities.Add(entity);
+        var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
+        //TODO: remove requirement to have this specific message as this can change
+        Assert.That(ex.Message, Does.Contain("Field name DuplicateField is not unique in entity TestEntity!"));
+    }
 
-            var ex = Assert.Throws<ResolverError>(() => stage.Execute(_context));
-            //TODO: remove requirement to have this specific message as this can change
-            Assert.That(ex.Message, Does.Contain("Field name DuplicateField is not unique in entity TestEntity!"));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define a field annotation with an enum expression as an argument
+    /// Expected:
+    /// Type gets resolved to correct enum type
+    /// </summary>
+    [Test]
+    public void ExpressionResolvingStage_ResolvesEnumExpressionArgumentsOnFieldAnnotations()
+    {
+        var stage = new EntityValidationStage();
+        var enumDef = new EnumDefinition { Name = "Enum1", Values = ["Val1"] };
+        _model.UserDefinedEnums.Add(enumDef);
 
-        /// <summary>
-        /// Scenario
-        /// Define a field annotation with an enum expression as an argument
-        /// Expected:
-        /// Type gets resolved to correct enum type
-        /// </summary>
-        [Test]
-        public void ExpressionResolvingStage_ResolvesEnumExpressionArgumentsOnFieldAnnotations()
-        {
-            var stage = new EntityValidationStage();
-            var enumDef = new EnumDefinition { Name = "Enum1", Values = ["Val1"] };
-            _model.UserDefinedEnums.Add(enumDef);
+        var enumExpr = new EnumExpression { RawEnumType = "Enum1", EnumValue = "Val1" };
+        var field = CreateField("TestField", "int");
+        field.AnnotationsRaw.Add(("Anno1", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr } })));
 
-            var enumExpr = new EnumExpression { RawEnumType = "Enum1", EnumValue = "Val1" };
-            var field = CreateField("TestField", "int");
-            field.AnnotationsRaw.Add(("Anno1", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr } })));
+        var entity = CreateEntity("TestEntity", field);
+        _model.Entities.Add(entity);
 
-            var entity = CreateEntity("TestEntity", field);
-            _model.Entities.Add(entity);
+        stage.Execute(_context);
 
-            stage.Execute(_context);
+        Assert.That(enumExpr.EnumType, Is.EqualTo(enumDef));
+    }
 
-            Assert.That(enumExpr.EnumType, Is.EqualTo(enumDef));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define an entity annotation with an enum expression as an argument
+    /// Expected:
+    /// Type gets resolved to correct enum type
+    /// </summary>
+    [Test]
+    public void ExpressionResolvingStage_ResolvesEnumExpressionArgumentsOnEntityAnnotations()
+    {
+        var stage = new EntityValidationStage();
+        var enumDef = new EnumDefinition { Name = "TestEnum", Values = ["Val1"] };
+        _model.UserDefinedEnums.Add(enumDef);
 
-        /// <summary>
-        /// Scenario
-        /// Define an entity annotation with an enum expression as an argument
-        /// Expected:
-        /// Type gets resolved to correct enum type
-        /// </summary>
-        [Test]
-        public void ExpressionResolvingStage_ResolvesEnumExpressionArgumentsOnEntityAnnotations()
-        {
-            var stage = new EntityValidationStage();
-            var enumDef = new EnumDefinition { Name = "TestEnum", Values = ["Val1"] };
-            _model.UserDefinedEnums.Add(enumDef);
+        var enumExpr = new EnumExpression { RawEnumType = "TestEnum", EnumValue = "Val1" };
+        var entity = new EntityDefinition { Name = "TestEntity" };
+        entity.AnnotationsRaw.Add(("TestAnnotation", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr } })));
+        _model.Entities.Add(entity);
 
-            var enumExpr = new EnumExpression { RawEnumType = "TestEnum", EnumValue = "Val1" };
-            var entity = new EntityDefinition { Name = "TestEntity" };
-            entity.AnnotationsRaw.Add(("TestAnnotation", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr } })));
-            _model.Entities.Add(entity);
+        stage.Execute(_context);
 
-            stage.Execute(_context);
+        Assert.That(enumExpr.EnumType, Is.EqualTo(enumDef));
+    }
 
-            Assert.That(enumExpr.EnumType, Is.EqualTo(enumDef));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define two annotations on a field 
+    /// Expected:
+    /// All annotations get resolved correctly
+    /// </summary>
+    [Test]
+    public void ExpressionResolvingStage_ResolvesAllAnnotationArguments()
+    {
+        var stage = new EntityValidationStage();
+        var enumDef1 = new EnumDefinition { Name = "Enum1", Values = ["Val1"] };
+        var enumDef2 = new EnumDefinition { Name = "Enum2", Values = ["Val2"] };
+        _model.UserDefinedEnums.Add(enumDef1);
+        _model.UserDefinedEnums.Add(enumDef2);
 
-        /// <summary>
-        /// Scenario
-        /// Define two annotations on a field 
-        /// Expected:
-        /// All annotations get resolved correctly
-        /// </summary>
-        [Test]
-        public void ExpressionResolvingStage_ResolvesAllAnnotationArguments()
-        {
-            var stage = new EntityValidationStage();
-            var enumDef1 = new EnumDefinition { Name = "Enum1", Values = ["Val1"] };
-            var enumDef2 = new EnumDefinition { Name = "Enum2", Values = ["Val2"] };
-            _model.UserDefinedEnums.Add(enumDef1);
-            _model.UserDefinedEnums.Add(enumDef2);
+        var enumExpr1 = new EnumExpression { RawEnumType = "Enum1", EnumValue = "Val1" };
+        var enumExpr2 = new EnumExpression { RawEnumType = "Enum2", EnumValue = "Val2" };
 
-            var enumExpr1 = new EnumExpression { RawEnumType = "Enum1", EnumValue = "Val1" };
-            var enumExpr2 = new EnumExpression { RawEnumType = "Enum2", EnumValue = "Val2" };
+        var field = CreateField("TestField", "int");
+        field.AnnotationsRaw.Add(("Anno1", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr1 } })));
+        field.AnnotationsRaw.Add(("Anno2", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr2 } })));
 
-            var field = CreateField("TestField", "int");
-            field.AnnotationsRaw.Add(("Anno1", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr1 } })));
-            field.AnnotationsRaw.Add(("Anno2", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr2 } })));
+        var entity = CreateEntity("TestEntity", field);
+        _model.Entities.Add(entity);
 
-            var entity = CreateEntity("TestEntity", field);
-            _model.Entities.Add(entity);
+        stage.Execute(_context);
 
-            stage.Execute(_context);
+        Assert.That(enumExpr1.EnumType, Is.EqualTo(enumDef1));
+        Assert.That(enumExpr2.EnumType, Is.EqualTo(enumDef2));
+    }
 
-            Assert.That(enumExpr1.EnumType, Is.EqualTo(enumDef1));
-            Assert.That(enumExpr2.EnumType, Is.EqualTo(enumDef2));
-        }
+    /// <summary>
+    /// Scenario
+    /// Define an annotation with an unknown enum type as parameter
+    /// Expected:
+    /// Resolving stage throws ResolverError
+    /// </summary>
+    [Test]
+    public void ExpressionResolvingStage_UnknownEnumInExpression_ThrowsResolverError()
+    {
+        var stage = new EntityValidationStage();
+        var enumExpr = new EnumExpression { RawEnumType = "NonExistentEnum", EnumValue = "Val1" };
+        var field = CreateField("TestField", "int");
+        field.AnnotationsRaw.Add(("TestAnnotation", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr } })));
 
-        /// <summary>
-        /// Scenario
-        /// Define an annotation with an unknown enum type as parameter
-        /// Expected:
-        /// Resolving stage throws ResolverError
-        /// </summary>
-        [Test]
-        public void ExpressionResolvingStage_UnknownEnumInExpression_ThrowsResolverError()
-        {
-            var stage = new EntityValidationStage();
-            var enumExpr = new EnumExpression { RawEnumType = "NonExistentEnum", EnumValue = "Val1" };
-            var field = CreateField("TestField", "int");
-            field.AnnotationsRaw.Add(("TestAnnotation", new AnnotationArgumentHolder(new Dictionary<string, IExpression> { { "arg", enumExpr } })));
-
-            var entity = CreateEntity("TestEntity", field);
-            _model.Entities.Add(entity);
-            
-            Assert.Throws<ResolverError>(() => stage.Execute(_context));
-        }
+        var entity = CreateEntity("TestEntity", field);
+        _model.Entities.Add(entity);
+        
+        Assert.Throws<ResolverError>(() => stage.Execute(_context));
     }
 }
