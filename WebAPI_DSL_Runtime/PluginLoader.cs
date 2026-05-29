@@ -37,7 +37,7 @@ public class PluginLoader
         foreach (var model in models)
         {
             var key = ((ModelAttribute)model.GetCustomAttribute(typeof(ModelAttribute))!).Name;
-            RegisterModelFactory(key, (m) => Activator.CreateInstance(model, m));
+            RegisterModelFactory(key, (m) => Activator.CreateInstance(model, m)!);
         }
         
         var generators = assembly.GetTypes()
@@ -49,7 +49,7 @@ public class PluginLoader
             var key = ((GeneratorAttribute)generator.GetCustomAttribute(typeof(GeneratorAttribute))!).Name;
             RegisterGenerator(key, () =>
             {
-                var gen = (ISourceGenerator)Activator.CreateInstance(generator);
+                var gen = (ISourceGenerator)Activator.CreateInstance(generator)!;
                 gen.WorkingDirectory = workingDirectory;
                 return gen;
             });
